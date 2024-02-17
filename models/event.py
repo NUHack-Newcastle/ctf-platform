@@ -6,13 +6,16 @@ from models.challenge import Challenge
 
 class Event:
     def __init__(self, name: str, challenges: Set[Challenge]):
-        self.__name = name
-        self.__challenges = Set[Challenge]
-        pass
+        self.__name: str = name
+        self.__challenges: Set[Challenge] = challenges
 
     @property
     def name(self) -> str:
         return self.__name
+
+    @property
+    def challenges(self) -> Set[Challenge]:
+        return self.__challenges
 
     @staticmethod
     def from_directory(directory: str) -> 'Event':
