@@ -35,6 +35,8 @@ class Event:
         challenges: Set[Challenge] = set()
         if os.path.isdir(os.path.join(directory, 'challenges')):
             for challenge_slug in os.listdir(os.path.join(directory, 'challenges')):
-                challenges.add(Challenge.from_directory(os.path.join(directory, 'challenges', challenge_slug)))
+                challenge = Challenge.from_directory(os.path.join(directory, 'challenges', challenge_slug))
+                assert not any(challenge.slug == c.slug for c in challenges)
+                challenges.add(challenge)
 
         return Event(json_dict['name'], challenges)

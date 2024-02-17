@@ -3,12 +3,17 @@ import json
 
 
 class Challenge:
-    def __init__(self, name: str):
+    def __init__(self, slug: str, name: str):
+        self.__slug: str = slug
         self.__name: str = name
 
     @property
     def name(self) -> str:
         return self.__name
+
+    @property
+    def slug(self) -> str:
+        return self.__slug
 
     @staticmethod
     def from_directory(directory: str) -> 'Challenge':
@@ -19,4 +24,4 @@ class Challenge:
         json_dict = json.loads(f.read())
         f.close()
 
-        return Challenge(json_dict['name'])
+        return Challenge(slug=os.path.split(directory)[-1], name=json_dict['name'])
