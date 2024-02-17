@@ -23,6 +23,11 @@ class Event:
     def flag_manager(self) -> FlagManager:
         return self.__flag_manager
 
+    @property
+    def secret_key(self) -> str:
+        # todo: implement per-event secret
+        return "super secret key"
+
     @staticmethod
     def from_directory(directory: str) -> 'Event':
         if not os.path.isdir(directory) or not os.path.exists(os.path.join(directory, 'event.json')):
