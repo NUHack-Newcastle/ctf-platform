@@ -2,12 +2,14 @@ import os
 import json
 from typing import Set
 from models.challenge import Challenge
+from models.flag_manager import FlagManager
 
 
 class Event:
     def __init__(self, name: str, challenges: Set[Challenge]):
         self.__name: str = name
         self.__challenges: Set[Challenge] = challenges
+        self.__flag_manager: FlagManager = FlagManager(self)
 
     @property
     def name(self) -> str:
@@ -16,6 +18,10 @@ class Event:
     @property
     def challenges(self) -> Set[Challenge]:
         return self.__challenges
+
+    @property
+    def flag_manager(self) -> FlagManager:
+        return self.__flag_manager
 
     @staticmethod
     def from_directory(directory: str) -> 'Event':
