@@ -1,6 +1,6 @@
 from flask import Blueprint, send_from_directory, render_template, redirect, url_for, flash
 from flask import current_app as app
-from flask_login import login_user
+from flask_login import login_user, current_user
 from flask_wtf import FlaskForm
 from wtforms.fields.simple import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Email
@@ -15,6 +15,9 @@ auth_blueprint = Blueprint('auth', __name__, url_prefix='/auth')
 
 @auth_blueprint.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
