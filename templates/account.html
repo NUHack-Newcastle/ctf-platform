@@ -31,7 +31,7 @@
                             {% with size='2xl', user=current_user, editable=true %}
                                 {% include 'widgets/avatar.html' %}
                             {% endwith %}
-                            <h3 class="mt-3">{{ current_user.email }}</h3>
+                            <h3 class="mt-3">{{ current_user.username }}</h3>
                             <p class="text-small">{{ current_user.email }}</p>
                         </div>
                     </div>
