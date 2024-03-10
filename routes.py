@@ -1,8 +1,16 @@
-from flask import Blueprint, send_from_directory, render_template, redirect, url_for
+import json
+from json import JSONDecodeError
+
+import dicebear.models
+from dicebear import DOptions
+from flask import Blueprint, send_from_directory, render_template, redirect, url_for, request
 from flask import current_app as app
 from flask_login import current_user
+from flask_wtf.csrf import generate_csrf
+from werkzeug.exceptions import BadRequest
 
 from app import CTFPlatformApp
+from db import db
 
 app: CTFPlatformApp
 
@@ -17,6 +25,27 @@ def static(path):
 @main_blueprint.route('/dashboard')
 def dashboard():
     return render_template('dashboard.html')
+
+
+@main_blueprint.route('/account')
+def account():
+    return render_template('account.html')
+
+
+@main_blueprint.route('/account/avatar', methods=['POST'])
+def avatar():
+    if 'style' not in request.form or 'seed' not in request.form or 'options' not in request.form:
+        raise BadRequest
+
+    j = {}
+    try:
+        j = json.loads(request.form['options'])
+    except JSONDecodeError:
+        raise BadRequest
+
+    current_user.edit_avatar(style=request.form['style'], seed=request.form['seed'], options=j)
+    db.session.commit()
+    return json.dumps({'avatar': str(current_user.avatar), 'csrf': generate_csrf()})
 
 
 @main_blueprint.route('/')

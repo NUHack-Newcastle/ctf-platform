@@ -1,0 +1,11 @@
+<div class="avatar avatar-{{ size }}{% if editable is defined and editable %} editable{% endif %}">
+{%- if editable is defined and editable %}
+    <div>
+        Edit
+    </div>
+{% endif -%}
+    <img src="{{ user.avatar }}" alt="Avatar">
+{%- if user.is_admin %}
+    <span class="avatar-status bg-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Admin"></span>
+{% endif -%}
+</div>

@@ -1,10 +1,12 @@
 from flask_login import LoginManager
+from flask_wtf import CSRFProtect
 
 from models.ctf_platform_app import CTFPlatformApp
 from models.event import Event
 from models.user import User
 from routes import main_blueprint
 from auth import auth_blueprint
+from jinja_filters import custom_filters
 
 
 def create_app() -> CTFPlatformApp:
@@ -14,6 +16,11 @@ def create_app() -> CTFPlatformApp:
 
     new_app.config['SECRET_KEY'] = 'secret'
     new_app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///event.db'
+    new_app.jinja_env.filters.update(custom_filters)
+    new_app.jinja_env.add_extension('jinja2.ext.do')
+
+    csrf = CSRFProtect(new_app)
+
     from db import db
     db.init_app(new_app)
 
@@ -27,6 +34,10 @@ def create_app() -> CTFPlatformApp:
 
     with new_app.app_context():
         db.create_all()
+
+        # eddie = User('eddie@email', 'password', 'admin', 'thumbs', 'test', {})
+        # db.session.add(eddie)
+        # db.session.commit()
 
     return new_app
 

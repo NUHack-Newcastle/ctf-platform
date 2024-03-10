@@ -1,0 +1,205 @@
+.avatar-sm .avatar-status {
+    width: 0.4rem!important;
+    height: 0.4rem!important;
+}
+
+.avatar-lg .avatar-status {
+    width: 0.8rem!important;
+    height: 0.8rem!important;
+}
+
+.avatar-xl .avatar-status {
+    width: 1rem!important;
+    height: 1rem!important;
+}
+
+.avatar-2xl .avatar-status {
+    width: 1.4rem!important;
+    height: 1.4rem!important;
+}
+
+html[data-bs-theme=dark] .avatar img{
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+.avatar.editable div:hover + img{
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.avatar img{
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.avatar-status {
+    z-index: 100;
+}
+
+.avatar.editable div:hover + img{
+    filter: brightness(30%);
+}
+
+html[data-bs-theme=dark] .avatar.editable div:hover + img{
+    filter: brightness(15%);
+}
+
+/*.avatar:not(.editable) div{
+    display: none;
+}*/
+
+.avatar .spinner{
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.avatar.loading img{
+    filter: opacity(0);
+}
+
+.avatar.loading .spinner{
+    display: initial;
+}
+
+.avatar.editable div{
+    position: absolute;
+    z-index: 50;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    opacity: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase;
+    font-weight: bolder;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    color: white;
+}
+
+.avatar.editable div:hover{
+    opacity: 1;
+}
+
+#avatarEditorModal span.select2-container img{
+    vertical-align: middle;
+    width: 1.5em;
+    height: 1.5em;
+    border-radius: 4px;
+    margin-right: 0.5em;
+    background-color: white;
+}
+
+.img-error{
+    width: 80%;
+}
+
+.select2-dropdown, .select2-dropdown *{
+    z-index: 9999!important;
+}
+
+.avatar-editor .avatar img{
+    border-radius: 0!important;
+}
+
+.avatar-editor .avatar{
+    border-radius: 50%;
+    overflow: hidden;
+    background-image: /* tint image */
+                      linear-gradient(to right, rgba(192, 192, 192, 0.75), rgba(192, 192, 192, 0.75)),
+                      /* checkered effect */
+                      linear-gradient(to right, black 50%, white 50%),
+                      linear-gradient(to bottom, black 50%, white 50%);
+    background-blend-mode: normal, difference, normal;
+    background-size: 2em 2em;
+}
+
+html[data-bs-theme=dark] .avatar-editor .avatar img, .avatar-editor .avatar img{
+    background-color: initial;
+}
+
+html[data-bs-theme=dark] .avatar.avatar-3xl .avatar-content, html[data-bs-theme=dark] .avatar.avatar-3xl img, .avatar.avatar-3xl .avatar-content, .avatar.avatar-3xl img {
+    width: 200px;
+    height: 200px;
+    font-size: 1.8rem;
+}
+
+html[data-bs-theme=dark] .avatar.avatar-4xl .avatar-content, html[data-bs-theme=dark] .avatar.avatar-4xl img, .avatar.avatar-4xl .avatar-content, .avatar.avatar-4xl img {
+    width: 240px;
+    height: 240px;
+    font-size: 2.0rem;
+}
+
+.form-check-input.color-selection[type=radio] {
+    border-radius: 25%!important;
+    border-width: thick;
+    width: 2em;
+    height: 1.5em;
+}
+
+.form-check-input.color-selection:checked[type=radio] {
+    background-image: none;
+}
+
+.form-check-input.color-selection[value=transparent]{
+    background-image: linear-gradient(to right, rgba(192, 192, 192, 0.75), rgba(192, 192, 192, 0.75)),
+                      linear-gradient(to right, black 50%, white 50%),
+                      linear-gradient(to bottom, black 50%, white 50%)!important;
+    background-blend-mode: normal, difference, normal;
+    background-size: 2em 2em;
+}
+
+.form-check-input.color-selection.custom-color[type=radio] {
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="black" class="bi bi-eyedropper" viewBox="0 0 16 16"><path d="M13.354.646a1.207 1.207 0 0 0-1.708 0L8.5 3.793l-.646-.647a.5.5 0 1 0-.708.708L8.293 5l-7.147 7.146A.5.5 0 0 0 1 12.5v1.793l-.854.853a.5.5 0 1 0 .708.707L1.707 15H3.5a.5.5 0 0 0 .354-.146L11 7.707l1.146 1.147a.5.5 0 0 0 .708-.708l-.647-.646 3.147-3.146a1.207 1.207 0 0 0 0-1.708zM2 12.707l7-7L10.293 7l-7 7H2z"/></svg>');
+}
+
+.form-check-input.color-selection.custom-color[type=radio]:not(:checked),
+.form-check-input.color-selection[value=''][type=radio]:not(:checked){
+    background-color: #e1e3ea;
+}
+
+.form-check-input.color-selection.custom-color[type=radio]:focus:not(:checked),
+html[data-bs-theme=dark] .form-check-input.color-selection.custom-color[type=radio]:focus:not(:checked),
+.form-check-input.color-selection[value=''][type=radio]:focus:not(:checked),
+html[data-bs-theme=dark] .form-check-input.color-selection[value=''][type=radio]:focus:not(:checked){
+    background-color: #a1afdf;
+}
+
+html[data-bs-theme=dark] .form-check-input.color-selection.custom-color[type=radio]:not(:checked),
+html[data-bs-theme=dark] .form-check-input.color-selection[value=''][type=radio]:not(:checked){
+    background-color: #393b42;
+}
+
+html[data-bs-theme=dark] .form-check-input.color-selection.custom-color[type=radio],
+.form-check-input.color-selection.custom-color[type=radio]:checked,
+.form-check-input.color-selection.custom-color[type=radio]:focus:not(:checked){
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" class="bi bi-eyedropper" viewBox="0 0 16 16"><path d="M13.354.646a1.207 1.207 0 0 0-1.708 0L8.5 3.793l-.646-.647a.5.5 0 1 0-.708.708L8.293 5l-7.147 7.146A.5.5 0 0 0 1 12.5v1.793l-.854.853a.5.5 0 1 0 .708.707L1.707 15H3.5a.5.5 0 0 0 .354-.146L11 7.707l1.146 1.147a.5.5 0 0 0 .708-.708l-.647-.646 3.147-3.146a1.207 1.207 0 0 0 0-1.708zM2 12.707l7-7L10.293 7l-7 7H2z"/></svg>');
+}
+
+.form-check-input.color-selection[value=''][type=radio] {
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="black" class="bi bi-shuffle" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M0 3.5A.5.5 0 0 1 .5 3H1c2.202 0 3.827 1.24 4.874 2.418.49.552.865 1.102 1.126 1.532.26-.43.636-.98 1.126-1.532C9.173 4.24 10.798 3 13 3v1c-1.798 0-3.173 1.01-4.126 2.082A9.6 9.6 0 0 0 7.556 8a9.6 9.6 0 0 0 1.317 1.918C9.828 10.99 11.204 12 13 12v1c-2.202 0-3.827-1.24-4.874-2.418A10.6 10.6 0 0 1 7 9.05c-.26.43-.636.98-1.126 1.532C4.827 11.76 3.202 13 1 13H.5a.5.5 0 0 1 0-1H1c1.798 0 3.173-1.01 4.126-2.082A9.6 9.6 0 0 0 6.444 8a9.6 9.6 0 0 0-1.317-1.918C4.172 5.01 2.796 4 1 4H.5a.5.5 0 0 1-.5-.5"/><path d="M13 5.466V1.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384l-2.36 1.966a.25.25 0 0 1-.41-.192m0 9v-3.932a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384l-2.36 1.966a.25.25 0 0 1-.41-.192"/></svg>');
+}
+
+html[data-bs-theme=dark] .form-check-input.color-selection[value=''][type=radio],
+.form-check-input.color-selection[value=''][type=radio]:checked,
+.form-check-input.color-selection[value=''][type=radio]:focus:not(:checked){
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" class="bi bi-shuffle" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M0 3.5A.5.5 0 0 1 .5 3H1c2.202 0 3.827 1.24 4.874 2.418.49.552.865 1.102 1.126 1.532.26-.43.636-.98 1.126-1.532C9.173 4.24 10.798 3 13 3v1c-1.798 0-3.173 1.01-4.126 2.082A9.6 9.6 0 0 0 7.556 8a9.6 9.6 0 0 0 1.317 1.918C9.828 10.99 11.204 12 13 12v1c-2.202 0-3.827-1.24-4.874-2.418A10.6 10.6 0 0 1 7 9.05c-.26.43-.636.98-1.126 1.532C4.827 11.76 3.202 13 1 13H.5a.5.5 0 0 1 0-1H1c1.798 0 3.173-1.01 4.126-2.082A9.6 9.6 0 0 0 6.444 8a9.6 9.6 0 0 0-1.317-1.918C4.172 5.01 2.796 4 1 4H.5a.5.5 0 0 1-.5-.5"/><path d="M13 5.466V1.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384l-2.36 1.966a.25.25 0 0 1-.41-.192m0 9v-3.932a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384l-2.36 1.966a.25.25 0 0 1-.41-.192"/></svg>');
+}
+
+input[type=range][orient=vertical] {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    transform: rotate(90deg);
+    transform-origin: 0 0;
+}
+
+*:has(>input[type=range][orient=vertical]){
+    position: relative;
+    width: 1.5em;
+}

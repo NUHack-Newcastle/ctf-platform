@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ error.code }} {{ error.name }} - {{ super() }}{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/compiled/css/error.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div id="error">
+<div class="error-page container">
+    <div class="col-md-8 col-12 offset-md-2">
+        <div class="text-center">
+        {% if static_file_exists('assets/compiled/svg/error-' + error.code|string +'.svg') %}
+            <img class="img-error" src="{{ url_for('static', filename='assets/compiled/svg/error-' + error.code|string + '.svg') }}">
+        {% endif %}
+            <h1 class="error-title mt-4">{% block error_title %}{{ error.code }} {{ error.name }}{% endblock %}</h1>
+            <p class="fs-5 text-gray-600">{% block error_text %}{{ error.description }}{% endblock %}</p>
+            <a href="{{ url_for('main.index') }}" class="btn btn-lg btn-outline-primary mt-3">Go Home</a>
+        </div>
+    </div>
+</div>
+    </div>
+{% endblock %}

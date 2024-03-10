@@ -1,0 +1,88 @@
+{%- do styles.append('https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css') -%}
+{%- do styles.append(url_for('static', filename='assets/select2-bootstrap-5-theme.min.css')) -%}'
+{%- do styles.append('https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.css') -%}'
+{%- do pre_content_scripts.append('https://code.jquery.com/jquery-3.7.1.min.js') %}
+{%- do scripts.append('https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js') -%}
+{%- do scripts.append('https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.js') -%}
+{%- do scripts.append(url_for('static', filename='assets/avatar-editor.js')) -%}
+<div class="modal fade" id="avatarEditorModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Avatar Editor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                    <div class="input-group mb-3">
+                    <label class="input-group-text" for="avatarStyleSelector">Style</label>
+                    <select id="avatarStyleSelector" class="form-select"
+                            data-existing="{{ current_user.avatar.style }}">
+                        {%- for style, meta in dicebear_styles.items() %}
+                            <option value="{{ style }}"
+                                    data-title="{{ meta.title }}"
+                                    data-source="{{ meta.source }}"
+                                    data-creator="{{ meta.creator }}"
+                                    data-homepage="{{ meta.homepage }}"
+                                    data-license-name="{{ meta.license.name }}"
+                                    data-license-url="{{ meta.license.url }}"
+                            >{{ style|replace('-', ' ')|title }}</option>
+                        {%- endfor %}
+                    </select>
+                </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <table class="mx-auto">
+                    <tbody>
+                    <tr>
+                        <td></td>
+                        <td class="avatar-option" id="avatarOptionContainerScale"></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="avatar-option" id="avatarOptionContainerTranslateY"></td>
+                        <td>
+                            <div class="avatar-editor">
+                                <div class="avatar avatar-4xl editor">
+                                    <div class="spinner">
+                                        <div class="spinner-border text-dark"></div>
+                                    </div>
+                                    <img src="{{ current_user.avatar }}">
+                                </div>
+                            </div>
+                        </td>
+                        <td class="avatar-option" id="avatarOptionContainerRotate"></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td class="avatar-option" id="avatarOptionContainerTranslateX"></td>
+                        <td class="avatar-option" id="avatarOptionContainerFlip"></td>
+                    </tr>
+                    </tbody>
+                </table>
+                </div>
+                <div class="col-md-8">
+                    <div id="avatarOptions"></div>
+                    <button id="avatarSeedRandomise" data-seed="{{ current_user.avatar.seed }}" class="btn btn-primary w-100">
+                        <i class="bi bi-dice-2-fill"></i> Roll the Dice
+                    </button>
+                    <div id="avatarStyleLicenseText" class="form-text"></div>
+                </div>
+            </div>
+            </div>
+            <script>
+                var avatarEditorOptions = {{ (current_user.avatar.options|merge_dicts(current_user.avatar.customisations))|tojson }};
+                var avatarEditorCSRFName = "{{ config.WTF_CSRF_FIELD_NAME }}";
+            </script>
+            <form action="{{ url_for('main.avatar') }}" method="POST">
+                <input type="hidden" name="{{ config.WTF_CSRF_FIELD_NAME }}" value="{{ csrf_token() }}"/>
+                <input type="hidden" name="style"/>
+                <input type="hidden" name="seed"/>
+                <input type="hidden" name="options"/>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="avatarEditorSave">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
