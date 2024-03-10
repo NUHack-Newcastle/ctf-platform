@@ -1,14 +1,16 @@
 import os
 import json
+import sys
 from typing import Set
 from models.challenge import Challenge
+from models.challengecategory import ChallengeCategory
 from models.flag_manager import FlagManager
 
 
 class Event:
-    def __init__(self, name: str, challenges: Set[Challenge]):
+    def __init__(self, name: str, categories: Set[ChallengeCategory]):
         self.__name: str = name
-        self.__challenges: Set[Challenge] = challenges
+        self.__categories: Set[ChallengeCategory] = categories
         self.__flag_manager: FlagManager = FlagManager(self)
 
     @property
@@ -16,8 +18,12 @@ class Event:
         return self.__name
 
     @property
+    def categories(self) -> Set[ChallengeCategory]:
+        return self.__categories
+
+    @property
     def challenges(self) -> Set[Challenge]:
-        return self.__challenges
+        return set().union(*(c.challenges for c in self.categories))
 
     @property
     def flag_manager(self) -> FlagManager:
@@ -30,18 +36,30 @@ class Event:
 
     @staticmethod
     def from_directory(directory: str) -> 'Event':
-        if not os.path.isdir(directory) or not os.path.exists(os.path.join(directory, 'event.json')):
+        if not os.path.isdir(directory) or not os.path.exists(os.path.join(directory, 'name')):
             raise FileNotFoundError()
 
-        f = open(os.path.join(directory, 'event.json'), 'r')
-        json_dict = json.loads(f.read())
+        f = open(os.path.join(directory, 'name'), 'r')
+        name = f.read()
         f.close()
 
+        categories: Set[ChallengeCategory] = set()
         challenges: Set[Challenge] = set()
         if os.path.isdir(os.path.join(directory, 'challenges')):
-            for challenge_slug in os.listdir(os.path.join(directory, 'challenges')):
-                challenge = Challenge.from_directory(os.path.join(directory, 'challenges', challenge_slug))
-                assert not any(challenge.slug == c.slug for c in challenges)
-                challenges.add(challenge)
+            for category_slug in os.listdir(os.path.join(directory, 'challenges')):
+                if not os.path.isdir(os.path.join(directory, 'challenges', category_slug)):
+                    continue
+                category = ChallengeCategory.from_directory(os.path.join(directory, 'challenges', category_slug))
+                assert not any(category.slug == c.slug for c in categories)
+                categories.add(category)
+                for challenge_slug in os.listdir(os.path.join(directory, 'challenges', category_slug)):
+                    if not os.path.isdir(os.path.join(directory, 'challenges', category_slug, challenge_slug)):
+                        continue
+                    challenge = Challenge.from_directory(os.path.join(directory, 'challenges', category_slug, challenge_slug), category=category)
+                    assert not any(challenge.slug == c.slug for c in challenges)
+                    category.add_challenge(challenge)
+                    challenges.add(challenge)
+        else:
+            sys.stderr.write("Warning: could not find challenges directory\n")
 
-        return Event(json_dict['name'], challenges)
+        return Event(name, categories)
