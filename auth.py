@@ -20,7 +20,7 @@ def login():
 
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        user = User.query.filter_by(username=form.username.data).first()
         if not user or user.password != form.password.data:
             flash('Invalid username or password')
             return render_template('login.html', form=form)
@@ -30,7 +30,7 @@ def login():
 
 
 class LoginForm(FlaskForm):
-    email = StringField(validators=[DataRequired(), Email()])
+    username = StringField(validators=[DataRequired()])
     password = PasswordField(validators=[DataRequired()])
     remember = BooleanField(default=True)
     submit = SubmitField()

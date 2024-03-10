@@ -14,7 +14,7 @@ from models.password import Password
 
 
 class User(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(32), primary_key=True, nullable=False)
     email = db.Column(db.String(256), nullable=False, unique=True)
     __password_column = db.Column('password', db.String(72), nullable=False)
     __role_column = db.Column('role', db.String(100), nullable=False, default='user')
@@ -22,7 +22,8 @@ class User(db.Model, UserMixin):
     __avatar_seed = db.Column('avatar_seed', db.String(64), nullable=False)
     __avatar_options = db.Column('avatar_options', db.String(1024), nullable=False)
 
-    def __init__(self, email, password, role, avatar_style: str, avatar_seed: str, avatar_options: dict):
+    def __init__(self, username, email, password, role, avatar_style: str, avatar_seed: str, avatar_options: dict):
+        self.username = username
         self.email = email
         self.__password = Password.from_plaintext(password)
         self.__password_column = self.__password.hash
@@ -31,6 +32,9 @@ class User(db.Model, UserMixin):
         self.__avatar_style = avatar_style
         self.__avatar_seed = avatar_seed
         self.__avatar_options = json.dumps(avatar_options)
+
+    def get_id(self):
+        return self.username
 
     @reconstructor
     def init_on_load(self):
@@ -70,3 +74,6 @@ class User(db.Model, UserMixin):
     @property
     def is_admin(self):
         return self.__role_column == 'admin'
+
+    def __str__(self):
+        return self.username

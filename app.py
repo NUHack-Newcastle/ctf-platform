@@ -29,13 +29,13 @@ def create_app() -> CTFPlatformApp:
     login_manager.init_app(new_app)
 
     @login_manager.user_loader
-    def load_user(user_id):
-        return User.query.get(int(user_id))
+    def load_user(username):
+        return User.query.get(username)
 
     with new_app.app_context():
         db.create_all()
 
-        # eddie = User('eddie@email', 'password', 'admin', 'thumbs', 'test', {})
+        # eddie = User('eddie', 'eddie@email', 'password', 'admin', 'thumbs', 'test', {})
         # db.session.add(eddie)
         # db.session.commit()
 
