@@ -2,9 +2,7 @@
 
 {% block title %}{{ error.code }} {{ error.name }} - {{ super() }}{% endblock %}
 
-{% block styles %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='assets/compiled/css/error.css') }}">
-{% endblock %}
+{%- do styles.append(url_for('static', filename='assets/compiled/css/error.css')) -%}'
 
 {% block content %}
     <div id="error">
