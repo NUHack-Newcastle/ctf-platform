@@ -49,7 +49,7 @@
         <li class="sidebar-item{%- if endpoint_or_sub_items is string and request.endpoint == endpoint_or_sub_items and endpoint_arguments|is_dict_subset(request.view_args) %} active{%- elif endpoint_or_sub_items is not string and endpoint_or_sub_items|length >= 1 %} has-sub{%- endif -%}{%- if endpoint_or_sub_items is not string and endpoint_or_sub_items|in_any('<li class="sidebar-item active">') %} active submenu-open{%- endif -%}">
             <a href="{{ url_for(endpoint_or_sub_items, **endpoint_arguments) if endpoint_or_sub_items is string else '#' }}" class='sidebar-link'>
                 {%- if icon != "" -%}
-                <i class="{{ icon }}"></i>
+                {{ icon|safe }}
                 {%- endif -%}
                 <span>{{ text }}</span>
             </a>
@@ -62,18 +62,21 @@
         {%- endif -%}
         </li>
     {%- endmacro -%}
+    {%- macro bootstrap_icon(icon_name) -%}
+        <i class="bi bi-{{ icon_name }}"></i>
+    {%- endmacro -%}
         <div class="sidebar-menu">
             <ul class="menu">
                 {{ sidebar_title('Menu')|safe }}
-                {{ sidebar_item('Dashboard', 'main.dashboard', 'bi bi-grid-fill')|safe }}
-                {{ sidebar_item('Account', 'main.account', 'bi bi-person-circle')|safe }}
+                {{ sidebar_item('Dashboard', 'main.dashboard', bootstrap_icon('grid-fill'))|safe }}
+                {{ sidebar_item('Account', 'main.account', bootstrap_icon('person-circle'))|safe }}
                 {{ sidebar_title('Challenges')|safe }}
                 {%- for category in event.categories|sort(attribute='name') %}
                 {%- set challenge_items = [] -%}
                     {%- for challenge in category.challenges|sort(attribute='name') -%}
                     {%- do challenge_items.append(sidebar_item(challenge.name, 'main.challenge', '', {'challenge_slug': challenge.slug})) -%}
                     {%- endfor -%}
-                {{ sidebar_item(category.name, challenge_items, 'bi bi-person-circle')|safe }}
+                {{ sidebar_item(category.name, challenge_items, category.icon or '')|safe }}
                 {%- endfor  %}
             </ul>
         </div>
