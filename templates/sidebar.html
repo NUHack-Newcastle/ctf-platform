@@ -62,8 +62,8 @@
         {%- endif -%}
         </li>
     {%- endmacro -%}
-    {%- macro bootstrap_icon(icon_name) -%}
-        <i class="bi bi-{{ icon_name }}"></i>
+    {%- macro bootstrap_icon(icon_name, class='') -%}
+        <i class="bi bi-{{ icon_name }}{%- if class %} {{ class }}{%- endif -%}"></i>
     {%- endmacro -%}
         <div class="sidebar-menu">
             <ul class="menu">
