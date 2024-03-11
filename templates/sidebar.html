@@ -45,8 +45,25 @@
     {%- macro sidebar_title(text) -%}
         <li class="sidebar-title">{{ text }}</li>
     {%- endmacro -%}
-    {%- macro sidebar_item_w_icon(text, endpoint, icon) -%}
-        <li class="sidebar-item{%- if request.endpoint == endpoint %} active{%- endif -%}">
+    {%- macro sidebar_item(text, endpoint_or_sub_items, icon='') -%}
+        <li class="sidebar-item{%- if endpoint_or_sub_items is string and request.endpoint == endpoint_or_sub_items %} active{%- elif endpoint_or_sub_items is not string and endpoint_or_sub_items|length >= 1 %} has-sub{%- endif -%}">
+            <a href="{{ url_for(endpoint_or_sub_items) if endpoint_or_sub_items is string else '#' }}" class='sidebar-link'>
+                {%- if icon != "" -%}
+                <i class="{{ icon }}"></i>
+                {%- endif -%}
+                <span>{{ text }}</span>
+            </a>
+        {%- if endpoint_or_sub_items is not string and endpoint_or_sub_items|length >= 1 -%}
+            <ul class="submenu">
+            {%- for sub_item in endpoint_or_sub_items %}
+                {{ sub_item|replace('sidebar-item', 'submenu-item')|safe }}
+            {%- endfor %}
+            </ul>
+        {%- endif -%}
+        </li>
+    {%- endmacro -%}
+    {%- macro sidebar_item_with_sub_items(text, sub_items, icon='') -%}
+        <li class="sidebar-item{%- if sub_items %} active{%- endif -%}">
                     <a href="{{ url_for(endpoint) }}" class='sidebar-link'>
                         {%- if icon != "" -%}
                         <i class="{{ icon }}"></i>
@@ -55,14 +72,11 @@
                     </a>
         </li>
     {%- endmacro -%}
-    {%- macro sidebar_item(text, endpoint) -%}
-        {{ sidebar_item_w_icon(text, endpoint, '')|safe }}
-    {%- endmacro-%}
         <div class="sidebar-menu">
             <ul class="menu">
                 {{ sidebar_title('Menu')|safe }}
-                {{ sidebar_item_w_icon('Dashboard', 'main.dashboard', 'bi bi-grid-fill')|safe }}
-                {{ sidebar_item_w_icon('Account', 'main.account', 'bi bi-person-circle')|safe }}
+                {{ sidebar_item('Dashboard', 'main.dashboard', 'bi bi-grid-fill')|safe }}
+                {{ sidebar_item('Account', 'main.account', 'bi bi-person-circle')|safe }}
             </ul>
         </div>
     </div>
