@@ -5,7 +5,7 @@ from slugify import slugify
 class Team(db.Model):
     __slug_column = db.Column('slug', db.String(64), nullable=False, unique=True, primary_key=True)
     __name_column = db.Column('name', db.String(64), nullable=False, unique=True)
-    users = db.relationship('User', backref='__team')
+    users = db.relationship('User', backref='_User__team')
 
     def __init__(self, name: str):
         self.__name_column = name
