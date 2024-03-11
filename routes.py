@@ -3,7 +3,7 @@ from json import JSONDecodeError
 
 import dicebear.models
 from dicebear import DOptions
-from flask import Blueprint, send_from_directory, render_template, redirect, url_for, request
+from flask import Blueprint, send_from_directory, render_template, redirect, url_for, request, abort
 from flask import current_app as app
 from flask_login import current_user
 from flask_wtf.csrf import generate_csrf
@@ -57,4 +57,7 @@ def index():
 
 @main_blueprint.route('/challenge/<string:challenge_slug>')
 def challenge(challenge_slug: str):
-    return challenge_slug
+    c = app.event.get_challenge(challenge_slug)
+    if c is None:
+        abort(404)
+    return render_template('challenge.html', challenge=c)
