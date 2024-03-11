@@ -1,7 +1,7 @@
 import os
 import json
 import sys
-from typing import Set
+from typing import Set, Optional
 from models.challenge import Challenge
 from models.challengecategory import ChallengeCategory
 from models.flag_manager import FlagManager
@@ -24,6 +24,12 @@ class Event:
     @property
     def challenges(self) -> Set[Challenge]:
         return set().union(*(c.challenges for c in self.categories))
+
+    def get_challenge(self, challenge_slug: str) -> Optional[Challenge]:
+        for challenge in self.challenges:
+            if challenge.slug == challenge_slug:
+                return challenge
+        return None
 
     @property
     def flag_manager(self) -> FlagManager:
