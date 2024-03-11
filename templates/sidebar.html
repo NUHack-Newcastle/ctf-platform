@@ -63,12 +63,13 @@
         </li>
     {%- endmacro -%}
     {%- macro bootstrap_icon(icon_name, class='') -%}
-        <i class="bi bi-{{ icon_name }}{%- if class %} {{ class }}{%- endif -%}"></i>
+        <i class="bi bi-{{ icon_name }}{%- if class is not none and class != '' %} {{ class }}{%- endif -%}"></i>
     {%- endmacro -%}
         <div class="sidebar-menu">
             <ul class="menu">
                 {{ sidebar_title('Menu')|safe }}
                 {{ sidebar_item('Dashboard', 'main.dashboard', bootstrap_icon('grid-fill'))|safe }}
+                {{ sidebar_item('Team', 'main.team', bootstrap_icon('people-fill', 'text-warning' if current_user.team is none else 't'))|safe }}
                 {{ sidebar_item('Account', 'main.account', bootstrap_icon('person-circle'))|safe }}
                 {{ sidebar_title('Challenges')|safe }}
                 {%- for category in event.categories|sort(attribute='name') %}
