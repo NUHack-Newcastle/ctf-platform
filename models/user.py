@@ -1,5 +1,6 @@
 import copy
 import json
+from typing import Optional
 
 import bcrypt
 import requests
@@ -11,6 +12,7 @@ from werkzeug.exceptions import BadRequest
 from db import db
 from models.avatar import Avatar
 from models.password import Password
+from models.team import Team
 
 
 class User(db.Model, UserMixin):
@@ -21,8 +23,9 @@ class User(db.Model, UserMixin):
     __avatar_style = db.Column('avatar_style', db.String(64), nullable=False)
     __avatar_seed = db.Column('avatar_seed', db.String(64), nullable=False)
     __avatar_options = db.Column('avatar_options', db.String(1024), nullable=False)
+    __team_column = db.Column('team', db.String(64), db.ForeignKey('team.slug'), nullable=True)
 
-    def __init__(self, username, email, password, role, avatar_style: str, avatar_seed: str, avatar_options: dict):
+    def __init__(self, username, email, password, role, avatar_style: str, avatar_seed: str, avatar_options: dict, team: Optional['Team']=None):
         self.username = username
         self.email = email
         self.__password = Password.from_plaintext(password)
@@ -32,6 +35,7 @@ class User(db.Model, UserMixin):
         self.__avatar_style = avatar_style
         self.__avatar_seed = avatar_seed
         self.__avatar_options = json.dumps(avatar_options)
+        self.__team = team
 
     def get_id(self):
         return self.username
@@ -77,3 +81,7 @@ class User(db.Model, UserMixin):
 
     def __str__(self):
         return self.username
+
+    @property
+    def team(self) -> Optional['Team']:
+        return self.__team
