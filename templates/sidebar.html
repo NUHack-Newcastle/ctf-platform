@@ -71,13 +71,14 @@
                 {{ sidebar_item('Dashboard', 'main.dashboard', bootstrap_icon('grid-fill'))|safe }}
                 {{ sidebar_item('Team', 'main.team', bootstrap_icon('people-fill', 'text-warning' if current_user.team is none or current_user.team_pending or current_user.team.any_pending else 't'))|safe }}
                 {{ sidebar_item('Account', 'main.account', bootstrap_icon('person-circle'))|safe }}
-                {{ sidebar_title('Challenges')|safe }}
+                {{ sidebar_item('Challenges', 'main.challenges', bootstrap_icon('puzzle-fill'))|safe }}
+                {{ sidebar_title('Challenge Categories')|safe }}
                 {%- for category in event.categories|sort(attribute='name') %}
                 {%- set challenge_items = [] -%}
                     {%- for challenge in category.challenges|sort(attribute='name') -%}
                     {%- do challenge_items.append(sidebar_item(challenge.name, 'main.challenge', '', {'challenge_slug': challenge.slug})) -%}
                     {%- endfor -%}
-                {{ sidebar_item(category.name, challenge_items, category.icon or '')|safe }}
+                {{ sidebar_item(category.name, challenge_items, category.icon or bootstrap_icon('puzzle-fill'))|safe }}
                 {%- endfor  %}
             </ul>
         </div>

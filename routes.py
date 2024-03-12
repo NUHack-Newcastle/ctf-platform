@@ -182,3 +182,8 @@ def challenge(challenge_slug: str):
     if c is None:
         abort(404)
     return render_template('challenge.html', challenge=c)
+
+@main_blueprint.route('/challenges')
+@login_required
+def challenges():
+    return render_template('challenges.html')
