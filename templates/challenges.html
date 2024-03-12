@@ -1,0 +1,66 @@
+{% extends 'base-panel.html' %}
+
+{% block title %}Challenges - {{ super() }}{% endblock %}
+
+{%- do styles.append(url_for('static', filename='assets/extensions/simple-datatables/style.css')) -%}
+{%- do styles.append(url_for('static', filename='assets/compiled/css/table-datatable.css')) -%}
+{%- do scripts.append(url_for('static', filename='assets/extensions/simple-datatables/umd/simple-datatables.js')) -%}
+{%- do scripts.append(url_for('static', filename='assets/challenges.js')) -%}
+
+{% block panel_content %}
+<div class="page-heading">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-12 col-md-6 order-md-1 order-last">
+                <h3>Challenges</h3>
+                <p class="text-subtitle text-muted">A page where users can change profile information</p>
+            </div>
+            <div class="col-12 col-md-6 order-md-2 order-first">
+                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Profile</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="page-content">
+    <section class="section">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">
+                    Challenges
+                </h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped" id="challenges-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Difficulty</th>
+                            <th>Solves</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {%- for challenge in event.challenges|sort(attribute='name') -%}
+                        <tr>
+                            <td>{{ challenge.name }}</td>
+                            <td>{{ (challenge.category.icon or '')|safe }} {{ challenge.category.name }}</td>
+                            <td>TODO</td>
+                            <td>TODO</td>
+                            <td>
+                                <span class="badge bg-success">TODO</span>
+                            </td>
+                        </tr>
+                    {%- endfor -%}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
