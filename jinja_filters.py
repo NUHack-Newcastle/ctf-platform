@@ -27,5 +27,7 @@ custom_filters = {
     'unique': unique,
     'merge_dicts': merge_dicts,
     'is_dict_subset': is_dict_subset,
-    'in_any': in_any
+    'in_any': in_any,
+    'any': any,
+    'all': all
 }
