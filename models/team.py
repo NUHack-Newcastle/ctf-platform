@@ -18,3 +18,7 @@ class Team(db.Model):
     @property
     def slug(self) -> str:
         return self.__slug_column
+
+    @property
+    def any_pending(self) -> bool:
+        return any(u.team_pending for u in self.users)

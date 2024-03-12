@@ -24,6 +24,7 @@ class User(db.Model, UserMixin):
     __avatar_seed = db.Column('avatar_seed', db.String(64), nullable=False)
     __avatar_options = db.Column('avatar_options', db.String(1024), nullable=False)
     __team_column = db.Column('team', db.String(64), db.ForeignKey('team.slug'), nullable=True)
+    team_pending = db.Column('team_pending', db.Boolean, nullable=False, default=False)
 
     def __init__(self, username, email, password, role, avatar_style: str, avatar_seed: str, avatar_options: dict, team: Optional['Team']=None):
         self.username = username
@@ -85,3 +86,7 @@ class User(db.Model, UserMixin):
     @property
     def team(self) -> Optional['Team']:
         return self.__team
+
+    @team.setter
+    def team(self, team: Optional[Team]):
+        self.__team = team
