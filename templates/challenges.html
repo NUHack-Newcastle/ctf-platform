@@ -53,7 +53,15 @@
                             <td>TODO</td>
                             <td>TODO</td>
                             <td>
-                                <span class="badge bg-success">TODO</span>
+                            {%- if current_user.team is not none and not current_user.team_pending -%}
+                                {%- if current_user.team.has_solved(challenge) -%}
+                                <span class="badge bg-success">Solved</span>
+                                {%- else -%}
+                                <span class="badge bg-danger">Unsolved</span>
+                                {%- endif -%}
+                            {%- else -%}
+                                <span class="badge bg-secondary">No team</span>
+                            {%- endif -%}
                             </td>
                         </tr>
                     {%- endfor -%}
