@@ -23,7 +23,7 @@ class Challenge:
 
     @staticmethod
     def from_directory(directory: str, category=None) -> 'Challenge':
-        if not os.path.isdir(directory) or not os.path.exists(os.path.join(directory, 'name')):
+        if not os.path.isdir(directory) or not os.path.isfile(os.path.join(directory, 'name')):
             raise FileNotFoundError()
 
         f = open(os.path.join(directory, 'name'), 'r')
