@@ -55,12 +55,13 @@ class ChallengeCategory:
                     sys.stderr.write("Warning: category icon is link to unknown name, not sure how to proceed. Omitting\n")
             elif allow_recreate_icon_symlink:
                 f = open(os.path.join(directory, 'icon'), 'r')
-                filepath = os.path.normpath(os.path.join(directory, f.read().strip()))
+                symlinkpath = f.read().strip()
+                filepath = os.path.normpath(os.path.join(directory, symlinkpath))
                 f.close()
                 if os.path.isfile(filepath):
                     sys.stderr.write(f"Warning: category icon is not link, but likely symlink to '{filepath}'. Recreating\n")
                     os.remove(os.path.join(directory, 'icon'))
-                    os.symlink(filepath, os.path.join(directory, 'icon'))
+                    os.symlink(symlinkpath, os.path.join(directory, 'icon'))
                     return ChallengeCategory.from_directory(directory, allow_recreate_icon_symlink=False)
                 else:
                     sys.stderr.write(f"Warning: category icon is not link, failed recreate to path {filepath}. Not sure how to proceed. Omitting\n")
