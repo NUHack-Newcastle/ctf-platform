@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from sqlalchemy.ext.hybrid import hybrid_property
+
 from db import db
 from flask import current_app as app
 

@@ -47,11 +47,12 @@
                     </thead>
                     <tbody>
                     {%- for challenge in event.challenges|sort(attribute='name') -%}
+                    {%- set solves = challenge.solves|length -%}
                         <tr>
                             <td>{{ challenge.name }}</td>
                             <td>{{ (challenge.category.icon or '')|safe }} {{ challenge.category.name }}</td>
                             <td>TODO</td>
-                            <td>TODO</td>
+                            <td>{{ solves }} solve{%- if solves != 1 -%}s{%- endif -%}</td>
                             <td>
                             {%- if current_user.team is not none and not current_user.team_pending -%}
                                 {%- if current_user.team.has_solved(challenge) -%}
