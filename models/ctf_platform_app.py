@@ -3,7 +3,7 @@ import os
 from flask import Flask, render_template, Response
 from flask_login import current_user
 from werkzeug.exceptions import HTTPException
-from dicebear.models import styles_metadata as dicebear_styles
+from dicebear.models import style_metadata as dicebear_styles
 
 from models.event import Event
 
