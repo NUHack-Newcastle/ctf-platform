@@ -17,11 +17,19 @@ jobs:
       - name: Clone data repository
         run: |
           git clone https://CaptureTheFrog:${{ secrets.EVENT_REPO_PAT }}@github.com/NUHack-Newcastle/nuhack-alpha-2024.git event
+      
+      - name: Rewrite submodule URLs
+        run: |
+          sed -i 's/git@github.com:/https:\/\/CaptureTheFrog:${{ secrets.EVENT_REPO_PAT }}@github.com\//' event/.gitmodules
+          
+      - name: Get submodules
+        run: |
+          git -C event submodule update --init --recursive
 
       # Rest of your build steps go here...
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+        run: zip release.zip ./* -r -y
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v3
@@ -46,7 +54,7 @@ jobs:
         with:
           name: python-app
 
-      - name: Unzip artifact for deployment
+      - name: Extract artifact for deployment
         run: unzip release.zip
 
       - name: Login to Azure
