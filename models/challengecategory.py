@@ -57,7 +57,7 @@ class ChallengeCategory:
                 f = open(os.path.join(directory, 'icon'), 'r')
                 filepath = os.path.normpath(os.path.join(directory, f.read().strip()))
                 f.close()
-                if os.path.isfile(os.path.join(directory, 'icon', filepath)):
+                if os.path.isfile(filepath):
                     sys.stderr.write(f"Warning: category icon is not link, but likely symlink to '{filepath}'. Recreating\n")
                     os.remove(os.path.join(directory, 'icon'))
                     os.symlink(filepath, os.path.join(directory, 'icon'))
