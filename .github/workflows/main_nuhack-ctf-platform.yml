@@ -16,7 +16,7 @@ jobs:
 
       - name: Clone data repository
         run: |
-          git clone https://CaptureTheFrog:${{ secrets.DATA_REPO_PAT }}@github.com/NUHack-Newcastle/nuhack-alpha-2024.git event
+          git clone https://CaptureTheFrog:${{ secrets.EVENT_REPO_PAT }}@github.com/NUHack-Newcastle/nuhack-alpha-2024.git event
 
       # Rest of your build steps go here...
 
