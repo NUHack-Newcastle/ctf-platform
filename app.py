@@ -1,4 +1,5 @@
 import os
+import sys
 
 from flask_login import LoginManager
 from flask_wtf import CSRFProtect
@@ -18,7 +19,9 @@ def create_app() -> CTFPlatformApp:
 
     new_app.config['SECRET_KEY'] = 'secret'
     if 'CTF_DB_CONNECTION_STRING' not in os.environ:
-        print("'CTF_DB_CONNECTION_STRING' not set, defaulting to sqlite local")
+        sys.stderr.write("'CTF_DB_CONNECTION_STRING' not set, defaulting to sqlite local\n")
+    else:
+        sys.stderr.write("'CTF_DB_CONNECTION_STRING' is set, attempting to use\n")
     new_app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('CTF_DB_CONNECTION_STRING', 'sqlite:///db.sqlite')
     new_app.jinja_env.filters.update(custom_filters)
     new_app.jinja_env.add_extension('jinja2.ext.do')
