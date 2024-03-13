@@ -1,6 +1,8 @@
 import os
 import json
-from typing import Optional
+from typing import Optional, Set
+from db import db
+from models.solve import Solve
 
 
 class Challenge:
@@ -31,3 +33,7 @@ class Challenge:
         f.close()
 
         return Challenge(slug=os.path.split(directory)[-1], name=name, category=category)
+
+    @property
+    def solves(self) -> Set['Solve']:
+        return set(Solve.query.filter_by(challenge=self.slug))
