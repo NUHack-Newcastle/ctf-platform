@@ -16,7 +16,15 @@ jobs:
 
       - name: Clone data repository
         run: |
-          git clone --recurse-submodules -j8 https://CaptureTheFrog:${{ secrets.EVENT_REPO_PAT }}@github.com/NUHack-Newcastle/nuhack-alpha-2024.git event
+          git clone https://CaptureTheFrog:${{ secrets.EVENT_REPO_PAT }}@github.com/NUHack-Newcastle/nuhack-alpha-2024.git event
+      
+      - name: Rewrite submodule URLs
+        run: |
+          sed -i 's/git@github.com:/https:\/\/CaptureTheFrog:${{ secrets.EVENT_REPO_PAT }}@github.com\//' event/.gitmodules
+          
+      - name: Get submodules
+        run: |
+          git -C event submodule update --init --recursive
 
       # Rest of your build steps go here...
 
