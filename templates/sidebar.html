@@ -76,7 +76,7 @@
                 {%- for category in event.categories|sort(attribute='name') %}
                 {%- set challenge_items = [] -%}
                     {%- for challenge in category.challenges|sort(attribute='name') -%}
-                    {%- do challenge_items.append(sidebar_item(challenge.name, 'main.challenge', '', {'challenge_slug': challenge.slug})) -%}
+                    {%- do challenge_items.append(sidebar_item(challenge.name, 'main.challenge', bootstrap_icon('check-lg', 'text-success me-2') if current_user.team is not none and not current_user.team_pending and current_user.team.has_solved(challenge) else '', {'challenge_slug': challenge.slug})) -%}
                     {%- endfor -%}
                 {{ sidebar_item(category.name, challenge_items, category.icon or bootstrap_icon('puzzle-fill'))|safe }}
                 {%- endfor  %}

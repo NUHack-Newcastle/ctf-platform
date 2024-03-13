@@ -27,12 +27,19 @@
 </div>
 <div class="page-content">
     <section class="section">
+    {%- if current_user.team is none -%}
+        <div class="alert alert-warning">You need to join a team before you can take part in this challenge.</div>
+    {%- elif current_user.team_pending -%}
+        <div class="alert alert-warning">You need to be accepted onto the team before you can take part in this challenge.</div>
+    {%- elif current_user.team.has_solved(challenge) -%}
+        <div class="alert alert-success">Your team has already solved this challenge - well done!</div>
+    {%- endif -%}
         <form method="POST" id="flag-form">
-            <fieldset{%- if current_user.team.has_solved(challenge) %} disabled{%- endif -%}>
+            <fieldset{%- if current_user.team is none or current_user.team_pending or current_user.team.has_solved(challenge) %} disabled{%- endif -%}>
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <div class="input-group mb-3 input-group-lg">
                     <span class="input-group-text">Flag</span>
-                    <input type="text" class="form-control" placeholder="{%- if current_user.team.has_solved(challenge) -%}{{ event.flag_manager.generate_flag(challenge, current_user.team) }}{%- else -%}flag{TypeYourFlagHere}{%- endif -%}" name="flag" autocomplete="off"/>
+                    <input type="text" class="form-control" placeholder="{%- if current_user.team is not none and not current_user.team_pending and current_user.team.has_solved(challenge) -%}{{ event.flag_manager.generate_flag(challenge, current_user.team) }}{%- else -%}flag{TypeYourFlagHere}{%- endif -%}" name="flag" autocomplete="off"/>
                     <button class="btn btn-success submit-flag" type="button"><i class="bi bi-arrow-right"></i></button>
                 </div>
             </fieldset>
