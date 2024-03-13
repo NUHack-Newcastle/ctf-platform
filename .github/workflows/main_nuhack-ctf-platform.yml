@@ -29,14 +29,14 @@ jobs:
       # Rest of your build steps go here...
 
       - name: Zip artifact for deployment
-        run: tar -chzvf release.tar.gz ./*
+        run: zip release.zip ./* -r -y
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v3
         with:
           name: python-app
           path: |
-            release.tar.gz
+            release.zip
             !venv/
 
   deploy:
@@ -55,7 +55,7 @@ jobs:
           name: python-app
 
       - name: Extract artifact for deployment
-        run: tar -xhzvf release.tar.gz
+        run: unzip release.tar.gz
 
       - name: Login to Azure
         uses: azure/login@v1
