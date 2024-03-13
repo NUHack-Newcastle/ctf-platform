@@ -1,7 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-# More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
-
 name: Build and deploy Python app to Azure Web App - nuhack-ctf-platform
 
 on:
@@ -15,22 +11,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout application repository
+        uses: actions/checkout@v4
 
-      - name: Set up Python version
-        uses: actions/setup-python@v1
-        with:
-          python-version: '3.10'
-
-      - name: Create and start virtual environment
+      - name: Clone data repository
         run: |
-          python -m venv venv
-          source venv/bin/activate
-      
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-        
-      # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
+          git clone https://CaptureTheFrog:${{ secrets.EVENT_REPO_PAT }}@github.com/NUHack-Newcastle/nuhack-alpha-2024.git event
+
+      # Rest of your build steps go here...
 
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
@@ -61,7 +49,6 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
-      
       - name: Login to Azure
         uses: azure/login@v1
         with:
@@ -69,10 +56,14 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C8A6AD8B81A245E48AB700F8774D8132 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_977D10A6D9E747FAAEAED23368E6D3B2 }}
 
+      - name: Pull updates from data repository
+        run: |
+          cd event
+          git pull origin main
+
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v2
         id: deploy-to-webapp
         with:
           app-name: 'nuhack-ctf-platform'
           slot-name: 'Production'
-          
