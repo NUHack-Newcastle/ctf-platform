@@ -186,10 +186,10 @@ def challenge(challenge_slug: str):
     if request.method == 'POST':
         if 'flag' not in request.form:
             abort(400)
-        if current_user.team is None:
-            abort(403)
+        if current_user.team is None or current_user.team_pending:
+            return Response("You need to be accepted onto a team before you can submit flags.", status=403, mimetype='text/plain')
         if current_user.team.has_solved(c):
-            abort(410)
+            return Response("Your team has already solved this flag.", status=410, mimetype='text/plain')
         if app.event.flag_manager.verify_flag(c, current_user.team, request.form['flag']):
             new_solve = Solve(current_user.team, current_user, c, datetime.now())
             db.session.add(new_solve)
