@@ -1,7 +1,11 @@
 {% extends 'base-panel.html' %}
 
 {% block title %}{{ challenge.name }} - {{ super() }}{% endblock %}
-
+{%- do pre_content_scripts.append('https://code.jquery.com/jquery-3.7.1.min.js') %}
+{%- do styles.append(url_for('static', filename='assets/extensions/sweetalert2/sweetalert2.min.css')) -%}
+{%- do scripts.append(url_for('static', filename='assets/extensions/sweetalert2/sweetalert2.min.js')) -%}
+{%- do scripts.append(url_for('static', filename='assets/toast.js')) -%}
+{%- do scripts.append(url_for('static', filename='assets/flag.js')) -%}
 {% block panel_content %}
 <div class="page-heading">
     <div class="page-title">
@@ -23,10 +27,15 @@
 </div>
 <div class="page-content">
     <section class="section">
-        {{ event.flag_manager.generate_flag(challenge, current_user.team) }}
         <form method="POST" id="flag-form">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <input type="text" name="flag"/>
+            <fieldset{%- if current_user.team.has_solved(challenge) %} disabled{%- endif -%}>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="input-group mb-3 input-group-lg">
+                    <span class="input-group-text">Flag</span>
+                    <input type="text" class="form-control" placeholder="{%- if current_user.team.has_solved(challenge) -%}{{ event.flag_manager.generate_flag(challenge, current_user.team) }}{%- else -%}flag{TypeYourFlagHere}{%- endif -%}" name="flag" autocomplete="off"/>
+                    <button class="btn btn-success submit-flag" type="button"><i class="bi bi-arrow-right"></i></button>
+                </div>
+            </fieldset>
         </form>
     </section>
 </div>
