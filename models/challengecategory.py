@@ -63,7 +63,7 @@ class ChallengeCategory:
                     os.symlink(filepath, os.path.join(directory, 'icon'))
                     return ChallengeCategory.from_directory(directory, allow_recreate_icon_symlink=False)
                 else:
-                    sys.stderr.write("Warning: category icon is not link, failed recreate. Not sure how to proceed. Omitting\n")
+                    sys.stderr.write(f"Warning: category icon is not link, failed recreate to path {filepath}. Not sure how to proceed. Omitting\n")
             else:
                 sys.stderr.write("Warning: category icon is not link, not sure how to proceed. Omitting\n")
         return ChallengeCategory(slug=os.path.split(directory)[-1], name=name, icon=icon)
