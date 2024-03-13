@@ -1,6 +1,9 @@
 import os
 import json
 from typing import Optional, Set
+
+from flask_login import current_user
+
 from db import db
 from models.solve import Solve
 
@@ -36,4 +39,5 @@ class Challenge:
 
     @property
     def solves(self) -> Set['Solve']:
-        return set(Solve.query.filter_by(challenge=self.slug))
+        # not sure the proper way to do this in sqlalchemy! hybrid properties didn't seem to work!
+        return set(s for s in Solve.query.all() if s.challenge == self)

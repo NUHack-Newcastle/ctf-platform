@@ -1,10 +1,11 @@
 import json
+from datetime import datetime
 from json import JSONDecodeError
 
 import dicebear.models
 import sqlalchemy
 from dicebear import DOptions
-from flask import Blueprint, send_from_directory, render_template, redirect, url_for, request, abort
+from flask import Blueprint, send_from_directory, render_template, redirect, url_for, request, abort, Response
 from flask import current_app as app
 from flask_login import current_user, login_required
 from flask_wtf.csrf import generate_csrf
@@ -12,6 +13,7 @@ from werkzeug.exceptions import BadRequest
 
 from app import CTFPlatformApp
 from db import db
+from models.solve import Solve
 from models.team import Team
 from models.user import User
 
@@ -48,7 +50,7 @@ def avatar():
 
     current_user.edit_avatar(style=request.form['style'], seed=request.form['seed'], options=j)
     db.session.commit()
-    return json.dumps({'avatar': str(current_user.avatar), 'csrf': generate_csrf()})
+    return Response(json.dumps({'avatar': str(current_user.avatar), 'csrf': generate_csrf()}), status=200, mimetype='application/json')
 
 
 @main_blueprint.route('/')
@@ -78,7 +80,7 @@ def leave_team():
             db.session.commit()
         if current_user.team is not None:
             abort(500)
-    return json.dumps({})
+    return Response(json.dumps({}), status=200, mimetype='application/json')
 
 
 @main_blueprint.route('/team/reject', methods=['POST'])
@@ -98,7 +100,7 @@ def team_reject():
     user.team = None
     user.team_pending = False
     db.session.commit()
-    return json.dumps({})
+    return Response(json.dumps({}), status=200, mimetype='application/json')
 
 
 @main_blueprint.route('/team/join', methods=['POST'])
@@ -114,7 +116,7 @@ def join_team():
     current_user.team_pending = len(new_team.users) > 0
     current_user.team = new_team
     db.session.commit()
-    return json.dumps({})
+    return Response(json.dumps({}), status=200, mimetype='application/json')
 
 
 @main_blueprint.route('/team/join/<string:slug>', methods=['GET'])
@@ -147,7 +149,7 @@ def team_approve():
         abort(403)
     user.team_pending = False
     db.session.commit()
-    return json.dumps({})
+    return Response(json.dumps({}), status=200, mimetype='application/json')
 
 
 @main_blueprint.route('/team/create', methods=['POST'])
@@ -164,7 +166,7 @@ def create_team():
         db.session.commit()
     except sqlalchemy.exc.IntegrityError:
         abort(403)  # not unique
-    return json.dumps({})
+    return Response(json.dumps({}), status=200, mimetype='application/json')
 
 
 @main_blueprint.route('/team/size')
@@ -175,13 +177,27 @@ def team_size():
     return str(len(current_user.team.users))
 
 
-@main_blueprint.route('/challenge/<string:challenge_slug>')
+@main_blueprint.route('/challenge/<string:challenge_slug>', methods=['GET', 'POST'])
 @login_required
 def challenge(challenge_slug: str):
     c = app.event.get_challenge(challenge_slug)
     if c is None:
         abort(404)
-    return render_template('challenge.html', challenge=c)
+    if request.method == 'POST':
+        if 'flag' not in request.form:
+            abort(400)
+        if current_user.team is None:
+            abort(403)
+        if current_user.team.has_solved(c):
+            abort(410)
+        if app.event.flag_manager.verify_flag(c, current_user.team, request.form['flag']):
+            new_solve = Solve(current_user.team, current_user, c, datetime.now())
+            db.session.add(new_solve)
+            db.session.commit()
+            return Response(json.dumps({}), status=200, mimetype='application/json')
+        return Response("Incorrect flag", status=402, mimetype='text/plain')
+    else:
+        return render_template('challenge.html', challenge=c)
 
 @main_blueprint.route('/challenges')
 @login_required

@@ -14,3 +14,7 @@ class FlagManager:
                              digestmod=hashlib.sha256
                              ).hexdigest().lower()[:16]
         return f"flag{{{signature}}}"
+
+    def verify_flag(self, challenge: 'Challenge', team: 'Team', flag: str) -> bool:
+        return flag.strip().lower() == self.generate_flag(challenge, team)
+

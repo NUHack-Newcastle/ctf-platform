@@ -23,7 +23,11 @@
 </div>
 <div class="page-content">
     <section class="section">
-
+        {{ event.flag_manager.generate_flag(challenge, current_user.team) }}
+        <form method="POST" id="flag-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <input type="text" name="flag"/>
+        </form>
     </section>
 </div>
 {% endblock %}
