@@ -1,12 +1,14 @@
 import os
 import sys
 
+from azure.storage.blob import BlobServiceClient
 from flask_login import LoginManager
 from flask_wtf import CSRFProtect
 
 from models.ctf_platform_app import CTFPlatformApp
 from models.event import Event
 from models.user import User
+from orchestrator import orchestrator_blueprint
 from routes import main_blueprint
 from auth import auth_blueprint
 from jinja_filters import custom_filters
@@ -14,8 +16,12 @@ from jinja_filters import custom_filters
 
 def create_app() -> CTFPlatformApp:
     new_app = CTFPlatformApp(Event.from_directory('event'), __name__)
-    new_app.register_blueprint(main_blueprint)
-    new_app.register_blueprint(auth_blueprint)
+    if os.environ.get('CTF_IS_ORCHESTRATOR', 'false') == 'true':
+        new_app.blob_service_client = BlobServiceClient.from_connection_string(os.environ.get('AZURE_BLOB_CONNECTION_STRING'))
+        new_app.register_blueprint(orchestrator_blueprint)
+    else:
+        new_app.register_blueprint(main_blueprint)
+        new_app.register_blueprint(auth_blueprint)
 
     new_app.config['SECRET_KEY'] = 'secret'
     if 'CTF_DB_CONNECTION_STRING' not in os.environ:
@@ -27,6 +33,7 @@ def create_app() -> CTFPlatformApp:
     new_app.jinja_env.add_extension('jinja2.ext.do')
 
     csrf = CSRFProtect(new_app)
+    csrf.exempt(orchestrator_blueprint)
 
     from db import db
     db.init_app(new_app)

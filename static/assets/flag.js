@@ -92,3 +92,67 @@ $(function(){
         }
     });
 });
+
+$(async () => {
+    const orchStaticCard = document.getElementById('orchStaticCard');
+    switch(orchStaticState){
+        case "OrchestrationStaticState.NOT_STARTED":
+            orchStaticCard.innerText = "The challenge server has not built this challenge for you yet. Please refresh the page in a few minutes.";
+            break;
+        case "OrchestrationStaticState.STARTED":
+            orchStaticCard.innerText = "The challenge server has started building this challenge for you. Please refresh the page in a few minutes.";
+            break;
+        case "OrchestrationStaticState.BUILDING":
+            orchStaticCard.innerText = "The challenge server is currently building this challenge for you. Please refresh the page in a few minutes.";
+            break;
+        case "OrchestrationStaticState.UPLOADING":
+            orchStaticCard.innerText = "The challenge server has built this challenge for you and is now uploading it. Please refresh the page in a few minutes.";
+            break;
+        case "OrchestrationStaticState.COMPLETE":
+            switch(orchStaticResources.type){
+                case null:
+                    orchStaticCard.innerText = "This challenge does not have any files for you to download here.";
+                    break;
+                case "azure_blob_container":
+                    fetch(`${orchStaticResources.default_endpoints_protocol}://${orchStaticResources.account_name}.blob.${orchStaticResources.endpoint_suffix}/${orchStaticResources.container_name}?restype=container&comp=list`).then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.text();
+                    })
+                    .then(xmlText => {
+                        // Parse the XML string into an XML Document
+                        const parser = new DOMParser();
+                        const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+
+                        orchStaticCard.innerHTML = '';
+
+                        xmlDoc.querySelectorAll('Blob').forEach(blobElement => {
+                            // Get the name, URL, and other properties of the Blob
+                            const name = blobElement.querySelector('Name').textContent;
+                            const url = blobElement.querySelector('Url').textContent;
+                            const lastModified = blobElement.querySelector('Last-Modified').textContent;
+                            const etag = blobElement.querySelector('Etag').textContent;
+
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.innerText = name;
+                            orchStaticCard.appendChild(link);
+                        });
+                    })
+                    .catch(error => {
+                        orchStaticCard.innerText = "There was an error listing your challenge files from Azure. Please refresh the page and try again.";
+                        console.error('There was a problem with the fetch operation:', error);
+                    });
+                    break;
+                default:
+                    orchStaticCard.innerText = "Unexpected error parsing challenge files.";
+            }
+            break;
+        case "OrchestrationStaticState.FAILED":
+            orchStaticCard.innerText = "The challenge server failed to build this challenge for you. Please report it to an event admin.";
+            break;
+        default:
+            orchStaticCard.innerText = "Unexpected error parsing challenge files.";
+    }
+});
