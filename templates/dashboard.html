@@ -258,9 +258,10 @@
                         {% endwith %}
                         <div class="ms-3 name">
                             <h5 class="font-bold">{{ current_user.username }}</h5>
-                            <h6 class="text-muted mb-0">@johnducky</h6>
+                            <h6 class="text-muted mb-0">todo text here</h6>
                         </div>
                     </div>
+                    <a href="{{ url_for('auth.logout') }}" class="btn btn-danger w-100 mt-3">Logout</a>
                 </div>
             </div>
             <div class="card">
