@@ -1,9 +1,11 @@
 import json
+import mimetypes
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from json import JSONDecodeError
 
 import dicebear.models
+import magic
 import requests
 import sqlalchemy
 from dicebear import DOptions
@@ -229,3 +231,21 @@ def challenge(challenge_slug: str):
 @login_required
 def challenges():
     return render_template('challenges.html')
+
+@main_blueprint.route('/logo')
+def logo():
+    if app.event.logo is None:
+        abort(404)
+
+    mime_type = magic.Magic(mime=True).from_buffer(app.event.logo)
+    if mime_type is None:
+        mime_type = 'application/octet-stream'  # default MIME type if not determined
+
+    # Create a response with the bytes data and appropriate MIME type
+    response = Response(app.event.logo, content_type=mime_type)
+
+    # Set caching headers to allow caching
+    response.headers['Cache-Control'] = 'public, max-age=3600'  # Cache for 1 hour (adjust as needed)
+    response.headers['Expires'] = (datetime.now() + timedelta(hours=1)).strftime('%a, %d %b %Y %H:%M:%S GMT')
+
+    return response

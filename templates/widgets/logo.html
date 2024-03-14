@@ -1,0 +1,5 @@
+{%- if event.logo is none -%}
+    {{ event.name }}
+{%- else -%}
+    <img src="{{ url_for('main.logo') }}" alt="Logo" srcset="">
+{%- endif -%}
