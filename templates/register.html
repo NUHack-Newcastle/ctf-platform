@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Login - {{ super() }}{% endblock %}
+{% block title %}Register - {{ super() }}{% endblock %}
 
 {%- do styles.append(url_for('static', filename='assets/compiled/css/auth.css')) -%}
 
@@ -13,8 +13,8 @@
             <div class="auth-logo mb-5">
                 {%- include 'widgets/logo.html' -%}
             </div>
-            <h1 class="auth-title">Log in.</h1>
-            <p class="auth-subtitle mb-5">Log in with your username and password to take part in {{ event.name }}.</p>
+            <h1 class="auth-title">Register.</h1>
+            <p class="auth-subtitle mb-5">Enter details below to register for {{ event.name }}.</p>
             {% with messages = get_flashed_messages() %}
             {% if messages %}
                 <div class="alert alert-danger" role="alert">
@@ -22,8 +22,20 @@
                 </div>
             {% endif %}
             {% endwith %}
-            <form method="post" action="{{ url_for('auth.login') }}">
+            {% if register_ok %}
+                <div class="alert alert-success" role="alert">
+                    Successfully registered! Please <a href="{{ url_for('auth.login') }}">click here to login</a>.
+                </div>
+            {% else %}
+            <form method="post" action="{{ url_for('auth.register', token=token) }}">
                 {{ form.csrf_token }}
+                <div class="form-group position-relative has-icon-left mb-4 has-validation">
+                    <input class="form-control form-control-xl" type="text" readonly="readonly" disabled value="{{ email }}"
+                    title="You can't change your email without requesting another registration link from the event admins.">
+                    <div class="form-control-icon">
+                        <i class="bi bi-envelope-at"></i>
+                    </div>
+                </div>
                 <div class="form-group position-relative has-icon-left mb-4 has-validation">
                     {{ form.username(class="form-control form-control-xl" + (" is-invalid" if form.username.errors|length > 0 else ""), placeholder="Username") }}
                     {% for error in form.username.errors %}
@@ -46,19 +58,9 @@
                         <i class="bi bi-shield-lock"></i>
                     </div>
                 </div>
-                <div class="form-check form-check-lg d-flex align-items-end">
-                    {{ form.remember(class="form-check-input me-2" + (" is-invalid" if form.remember.errors|length > 0 else ""), id="flexCheckDefault") }}
-                    <label class="form-check-label text-gray-600" for="flexCheckDefault">
-                        Keep me logged in
-                    </label>
-                </div>
-                <button class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Log in</button>
+                <button class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Register</button>
             </form>
-            {# <div class="text-center mt-5 text-lg fs-4">
-                <p class="text-gray-600">Don't have an account? <a href="auth-register.html" class="font-bold">Sign
-                        up</a>.</p>
-                <p><a class="font-bold" href="auth-forgot-password.html">Forgot password?</a>.</p>
-            </div> #}
+            {% endif %}
         </div>
     </div>
     <div class="col-lg-7 d-none d-lg-block">

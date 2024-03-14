@@ -1,5 +1,5 @@
 {%- if event.logo is none -%}
     {{ event.name }}
 {%- else -%}
-    <img src="{{ url_for('main.logo') }}" alt="Logo" srcset="">
+    <img src="{{ url_for('main.logo') }}" alt="Logo" srcset="" style="height:initial!important;width:90%">
 {%- endif -%}

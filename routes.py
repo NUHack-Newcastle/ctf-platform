@@ -1,3 +1,4 @@
+import base64
 import json
 import mimetypes
 import sys
@@ -15,6 +16,8 @@ from flask_login import current_user, login_required
 from flask_wtf.csrf import generate_csrf
 from requests import ReadTimeout
 from werkzeug.exceptions import BadRequest
+import hmac
+import hashlib
 
 from app import CTFPlatformApp
 from db import db
@@ -57,7 +60,8 @@ def avatar():
 
     current_user.edit_avatar(style=request.form['style'], seed=request.form['seed'], options=j)
     db.session.commit()
-    return Response(json.dumps({'avatar': str(current_user.avatar), 'csrf': generate_csrf()}), status=200, mimetype='application/json')
+    return Response(json.dumps({'avatar': str(current_user.avatar), 'csrf': generate_csrf()}), status=200,
+                    mimetype='application/json')
 
 
 @main_blueprint.route('/')
@@ -67,7 +71,16 @@ def index():
     return redirect(url_for('auth.login'))
 
 
+@main_blueprint.route('/scope')
+@login_required
+def scope():
+    if app.event.scope_html is None:
+        abort(404)
+    return render_template('scope.html')
+
+
 @main_blueprint.route('/team')
+@login_required
 def team():
     return render_template('team.html')
 
@@ -215,7 +228,8 @@ def challenge(challenge_slug: str):
         if 'flag' not in request.form:
             abort(400)
         if current_user.team is None or current_user.team_pending:
-            return Response("You need to be accepted onto a team before you can submit flags.", status=403, mimetype='text/plain')
+            return Response("You need to be accepted onto a team before you can submit flags.", status=403,
+                            mimetype='text/plain')
         if current_user.team.has_solved(c):
             return Response("Your team has already solved this flag.", status=410, mimetype='text/plain')
         if app.event.flag_manager.verify_flag(c, current_user.team, request.form['flag']):
@@ -225,12 +239,15 @@ def challenge(challenge_slug: str):
             return Response(json.dumps({}), status=200, mimetype='application/json')
         return Response("Incorrect flag", status=402, mimetype='text/plain')
     else:
-        return render_template('challenge.html', challenge=c, orch_static=OrchestrationStatic.query.get((current_user.team.slug, c.slug)))
+        return render_template('challenge.html', challenge=c,
+                               orch_static=OrchestrationStatic.query.get((current_user.team.slug, c.slug)))
+
 
 @main_blueprint.route('/challenges')
 @login_required
 def challenges():
     return render_template('challenges.html')
+
 
 @main_blueprint.route('/logo')
 def logo():
@@ -249,3 +266,26 @@ def logo():
     response.headers['Expires'] = (datetime.now() + timedelta(hours=1)).strftime('%a, %d %b %Y %H:%M:%S GMT')
 
     return response
+
+
+@main_blueprint.route('/admin', methods=['GET'])
+@login_required
+def admin():
+    if not current_user.is_admin:
+        abort(403)
+    return render_template('admin.html')
+
+@main_blueprint.route('/admin/create_token', methods=['POST'])
+@login_required
+def create_token():
+    if not current_user.is_admin:
+        abort(403)
+    if 'email' not in request.form:
+        abort(400)
+    email = request.form['email'].lower().strip()
+    signature = base64.b64encode(hmac.new(app.event.secret_key.encode('utf-8'),
+                                          msg=email.encode('utf-8'),
+                                          digestmod=hashlib.sha256
+                                          ).digest()).decode('utf-8')
+    token = base64.b64encode(json.dumps({'email': email, 'signature': signature}).encode('utf-8')).decode('utf-8')
+    return Response(url_for('auth.register', token=token), status=200, mimetype='text/plain')
