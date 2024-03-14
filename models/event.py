@@ -4,19 +4,30 @@ import sys
 from typing import Set, Optional
 from models.challenge import Challenge
 from models.challengecategory import ChallengeCategory
+from models.config import Config
 from models.flag_manager import FlagManager
 
 
 class Event:
-    def __init__(self, name: str, categories: Set[ChallengeCategory], logo: Optional[bytes] = None):
+    def __init__(self, name: str, categories: Set[ChallengeCategory], scope_html_path: str, logo: Optional[bytes] = None):
         self.__name: str = name
         self.__categories: Set[ChallengeCategory] = categories
         self.__flag_manager: FlagManager = FlagManager(self)
         self.__logo: Optional[bytes] = logo
+        self.__scope_html_path: str = scope_html_path
 
     @property
     def name(self) -> str:
         return self.__name
+
+    @property
+    def scope_html(self) -> Optional[str]:
+        if os.path.isfile(self.__scope_html_path):
+            f = open(self.__scope_html_path, 'r')
+            html = f.read()
+            f.close()
+            return html
+        return None
 
     @property
     def categories(self) -> Set[ChallengeCategory]:
@@ -38,8 +49,7 @@ class Event:
 
     @property
     def secret_key(self) -> str:
-        # todo: implement per-event secret
-        return "super secret key"
+        return Config.get_config().secret_key
 
     @staticmethod
     def from_directory(directory: str) -> 'Event':
@@ -47,7 +57,7 @@ class Event:
             raise FileNotFoundError()
 
         f = open(os.path.join(directory, 'name'), 'r')
-        name = f.read()
+        name = f.read().strip()
         f.close()
 
         logo: Optional[bytes] = None
@@ -55,6 +65,8 @@ class Event:
             f = open(os.path.join(directory, 'logo'), 'rb')
             logo = f.read()
             f.close()
+
+        scope_html_path: str = os.path.abspath(os.path.join(directory, 'scope.html'))
 
         categories: Set[ChallengeCategory] = set()
         challenges: Set[Challenge] = set()
@@ -75,7 +87,7 @@ class Event:
         else:
             sys.stderr.write("Warning: could not find challenges directory\n")
 
-        return Event(name, categories, logo)
+        return Event(name, categories, scope_html_path, logo)
 
     @property
     def logo(self) -> Optional[bytes]:

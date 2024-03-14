@@ -6,6 +6,7 @@ class Config(db.Model):
     # Define your configuration parameters here
     orchestrator_ip = db.Column(db.String(16), nullable=True)
     orchestrator_port = db.Column(db.Integer(), nullable=False, default=5000)
+    secret_key = db.Column(db.String(256), nullable=False, default='test')
     # Add more parameters as needed
 
     # Define a constant field that always holds the same value

@@ -68,6 +68,12 @@
     {%- endmacro -%}
         <div class="sidebar-menu">
             <ul class="menu">
+            {%- if event.scope_html is not none -%}
+                {{ sidebar_item('Scope', 'main.scope', bootstrap_icon('clipboard2-check-fill', 'text-success'))|safe }}
+            {%- endif -%}
+            {%- if current_user.is_admin -%}
+                {{ sidebar_item('Admin', 'main.admin', bootstrap_icon('person-fill-gear'))|safe }}
+            {%- endif -%}
                 {{ sidebar_title('Menu')|safe }}
                 {{ sidebar_item('Dashboard', 'main.dashboard', bootstrap_icon('grid-fill'))|safe }}
                 {{ sidebar_item('Team', 'main.team', bootstrap_icon('people-fill', 'text-warning' if current_user.team is none or current_user.team_pending or current_user.team.any_pending else 't'))|safe }}

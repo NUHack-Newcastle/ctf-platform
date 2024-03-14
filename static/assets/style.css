@@ -203,3 +203,9 @@ input[type=range][orient=vertical] {
     position: relative;
     width: 1.5em;
 }
+
+#auth-right{
+    background-image: url(https://images.unsplash.com/photo-1618060932014-4deda4932554?q=80)!important;
+    background-size: cover!important;
+    background-position: center!important;
+}
