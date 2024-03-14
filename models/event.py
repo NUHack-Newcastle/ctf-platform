@@ -8,10 +8,11 @@ from models.flag_manager import FlagManager
 
 
 class Event:
-    def __init__(self, name: str, categories: Set[ChallengeCategory]):
+    def __init__(self, name: str, categories: Set[ChallengeCategory], logo: Optional[bytes] = None):
         self.__name: str = name
         self.__categories: Set[ChallengeCategory] = categories
         self.__flag_manager: FlagManager = FlagManager(self)
+        self.__logo: Optional[bytes] = logo
 
     @property
     def name(self) -> str:
@@ -49,6 +50,12 @@ class Event:
         name = f.read()
         f.close()
 
+        logo: Optional[bytes] = None
+        if os.path.isfile(os.path.join(directory, 'logo')):
+            f = open(os.path.join(directory, 'logo'), 'rb')
+            logo = f.read()
+            f.close()
+
         categories: Set[ChallengeCategory] = set()
         challenges: Set[Challenge] = set()
         if os.path.isdir(os.path.join(directory, 'challenges')):
@@ -68,4 +75,8 @@ class Event:
         else:
             sys.stderr.write("Warning: could not find challenges directory\n")
 
-        return Event(name, categories)
+        return Event(name, categories, logo)
+
+    @property
+    def logo(self) -> Optional[bytes]:
+        return self.__logo
