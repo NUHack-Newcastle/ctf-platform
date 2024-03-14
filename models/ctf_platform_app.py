@@ -21,7 +21,8 @@ class CTFPlatformApp(Flask):
                                styles=[],
                                 pre_content_scripts=[], print=print,
                                scripts=[]))
-        self.errorhandler(HTTPException)(lambda e: Response(render_template('http-error.html', error=e), status=e.code))
+        if os.environ.get('CTF_IS_ORCHESTRATOR', 'false') != 'true':
+            self.errorhandler(HTTPException)(lambda e: Response(render_template('http-error.html', error=e), status=e.code))
         self.blob_service_client: Optional[BlobServiceClient] = None
 
     @property

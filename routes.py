@@ -1,18 +1,22 @@
 import json
+import sys
 from datetime import datetime
 from json import JSONDecodeError
 
 import dicebear.models
+import requests
 import sqlalchemy
 from dicebear import DOptions
 from flask import Blueprint, send_from_directory, render_template, redirect, url_for, request, abort, Response
 from flask import current_app as app
 from flask_login import current_user, login_required
 from flask_wtf.csrf import generate_csrf
+from requests import ReadTimeout
 from werkzeug.exceptions import BadRequest
 
 from app import CTFPlatformApp
 from db import db
+from models.config import Config
 from models.orchestration_static import OrchestrationStatic
 from models.solve import Solve
 from models.team import Team
@@ -167,6 +171,27 @@ def create_team():
         db.session.commit()
     except sqlalchemy.exc.IntegrityError:
         abort(403)  # not unique
+    # begin orchestrate
+    config = Config.get_config()
+    for challenge in app.event.challenges:
+        static_orch = OrchestrationStatic.query.get((new_team.slug, challenge.slug))
+        if static_orch is None:
+            static_orch = OrchestrationStatic(new_team, challenge)
+            db.session.add(static_orch)
+            db.session.commit()
+        if config.orchestrator_ip is None:
+            sys.stderr.write(
+                "Cannot deploy {challenge.slug} for {team.slug}: No orchestrator_ip set in config table of DB!\n")
+        else:
+            url = f"http://{Config.get_config().orchestrator_ip}:{Config.get_config().orchestrator_port}/orchestrate/static"
+            try:
+                requests.post(
+                    url,
+                    json={'team': new_team.slug, 'challenge': challenge.slug},
+                    timeout=(None, 0.1))
+            except ReadTimeout:
+                pass
+            sys.stderr.write(f"Requested static deploy of {challenge.slug} for {team.slug} via {url}\n")
     return Response(json.dumps({}), status=200, mimetype='application/json')
 
 

@@ -21,15 +21,11 @@ app: CTFPlatformApp
 
 orchestrator_blueprint = Blueprint('orchestrator', __name__)
 
-def get_db_session():
-    if 'db_session' not in app.config:
-        # Create a thread-local session
-        app.config['db_session'] = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=db.engine))
-    return app.config['db_session']
 
 @orchestrator_blueprint.route('/')
 def orchestrate_index():
     return 'CTF Orchestrator'
+
 
 @orchestrator_blueprint.route('/orchestrate/static', methods=['POST'])
 def orchestrate_static():
@@ -40,24 +36,28 @@ def orchestrate_static():
     if not team:
         abort(404)
 
-    db_session = get_db_session()
+    print(f"Starting orchestrate for team {team.slug} on challenge {challenge.slug}", file=sys.stderr)
+
+    db_session = db.session
     state = OrchestrationStatic.query.get((team.slug, challenge.slug))
-    if not state or state.state == OrchestrationStaticState.NOT_STARTED or state.state == OrchestrationStaticState.FAILED:
-        state = OrchestrationStatic(team, challenge)
-        state.state = OrchestrationStaticState.STARTED
+    if not state:
+        state.state = OrchestrationStaticState.NOT_STARTED
         db_session.add(state)
+        db_session.commit()
+    if state.state == OrchestrationStaticState.NOT_STARTED or state.state == OrchestrationStaticState.FAILED:
+        state.state = OrchestrationStaticState.STARTED
         db_session.commit()
 
         script_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'orchestrate_static.sh')
         challenge_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'event', 'challenges',
-                                    challenge.category.slug, challenge.slug)
+                                      challenge.category.slug, challenge.slug)
 
         state.state = OrchestrationStaticState.BUILDING
         db_session.commit()
 
         process = subprocess.Popen([script_path, challenge_path], stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE,
-                                env={'FLAG': app.event.flag_manager.generate_flag(challenge, team)})
+                                   stderr=subprocess.PIPE,
+                                   env={'FLAG': app.event.flag_manager.generate_flag(challenge, team)})
         stdout, stderr = process.communicate()
 
         # Check the exit code
@@ -93,18 +93,18 @@ def orchestrate_static():
                     for filename in files:
                         file_path = os.path.join(root, filename)
                         blob_client = app.blob_service_client.get_blob_client(container=container_name,
-                                                                          blob=file_path[len(last_line) + 1:])
+                                                                              blob=file_path[len(last_line) + 1:])
                         with open(file_path, "rb") as data:
                             blob_client.upload_blob(data)
                 state.state = OrchestrationStaticState.COMPLETE
                 connstr = parse_connection_string(os.environ.get('AZURE_BLOB_CONNECTION_STRING'))
                 state.resources = json.dumps({
-                                                'type': 'azure_blob_container',
-                                                'container_name': container_name,
-                                                'default_endpoints_protocol': connstr['defaultendpointsprotocol'],
-                                                'account_name': connstr['accountname'],
-                                                'endpoint_suffix': connstr['endpointsuffix'],
-                                              })
+                    'type': 'azure_blob_container',
+                    'container_name': container_name,
+                    'default_endpoints_protocol': connstr['defaultendpointsprotocol'],
+                    'account_name': connstr['accountname'],
+                    'endpoint_suffix': connstr['endpointsuffix'],
+                })
                 db_session.commit()
             else:
                 state.state = OrchestrationStaticState.COMPLETE
