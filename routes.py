@@ -6,6 +6,8 @@ from datetime import datetime, timedelta
 from json import JSONDecodeError
 
 import dicebear.models
+# noinspection PyUnresolvedReferences
+import pylibmagic  # don't remove, required for cross-platform python-magic support
 import magic
 import requests
 import sqlalchemy
@@ -274,6 +276,7 @@ def admin():
     if not current_user.is_admin:
         abort(403)
     return render_template('admin.html')
+
 
 @main_blueprint.route('/admin/create_token', methods=['POST'])
 @login_required
