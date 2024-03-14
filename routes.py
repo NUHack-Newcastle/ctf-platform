@@ -1,17 +1,29 @@
+import base64
 import json
+import mimetypes
+import sys
+from datetime import datetime, timedelta
 from json import JSONDecodeError
 
 import dicebear.models
+import magic
+import requests
 import sqlalchemy
 from dicebear import DOptions
-from flask import Blueprint, send_from_directory, render_template, redirect, url_for, request, abort
+from flask import Blueprint, send_from_directory, render_template, redirect, url_for, request, abort, Response
 from flask import current_app as app
 from flask_login import current_user, login_required
 from flask_wtf.csrf import generate_csrf
+from requests import ReadTimeout
 from werkzeug.exceptions import BadRequest
+import hmac
+import hashlib
 
 from app import CTFPlatformApp
 from db import db
+from models.config import Config
+from models.orchestration_static import OrchestrationStatic
+from models.solve import Solve
 from models.team import Team
 from models.user import User
 
@@ -48,7 +60,8 @@ def avatar():
 
     current_user.edit_avatar(style=request.form['style'], seed=request.form['seed'], options=j)
     db.session.commit()
-    return json.dumps({'avatar': str(current_user.avatar), 'csrf': generate_csrf()})
+    return Response(json.dumps({'avatar': str(current_user.avatar), 'csrf': generate_csrf()}), status=200,
+                    mimetype='application/json')
 
 
 @main_blueprint.route('/')
@@ -58,7 +71,16 @@ def index():
     return redirect(url_for('auth.login'))
 
 
+@main_blueprint.route('/scope')
+@login_required
+def scope():
+    if app.event.scope_html is None:
+        abort(404)
+    return render_template('scope.html')
+
+
 @main_blueprint.route('/team')
+@login_required
 def team():
     return render_template('team.html')
 
@@ -78,7 +100,7 @@ def leave_team():
             db.session.commit()
         if current_user.team is not None:
             abort(500)
-    return json.dumps({})
+    return Response(json.dumps({}), status=200, mimetype='application/json')
 
 
 @main_blueprint.route('/team/reject', methods=['POST'])
@@ -98,7 +120,7 @@ def team_reject():
     user.team = None
     user.team_pending = False
     db.session.commit()
-    return json.dumps({})
+    return Response(json.dumps({}), status=200, mimetype='application/json')
 
 
 @main_blueprint.route('/team/join', methods=['POST'])
@@ -114,7 +136,7 @@ def join_team():
     current_user.team_pending = len(new_team.users) > 0
     current_user.team = new_team
     db.session.commit()
-    return json.dumps({})
+    return Response(json.dumps({}), status=200, mimetype='application/json')
 
 
 @main_blueprint.route('/team/join/<string:slug>', methods=['GET'])
@@ -147,7 +169,7 @@ def team_approve():
         abort(403)
     user.team_pending = False
     db.session.commit()
-    return json.dumps({})
+    return Response(json.dumps({}), status=200, mimetype='application/json')
 
 
 @main_blueprint.route('/team/create', methods=['POST'])
@@ -164,7 +186,28 @@ def create_team():
         db.session.commit()
     except sqlalchemy.exc.IntegrityError:
         abort(403)  # not unique
-    return json.dumps({})
+    # begin orchestrate
+    config = Config.get_config()
+    for challenge in app.event.challenges:
+        static_orch = OrchestrationStatic.query.get((new_team.slug, challenge.slug))
+        if static_orch is None:
+            static_orch = OrchestrationStatic(new_team, challenge)
+            db.session.add(static_orch)
+            db.session.commit()
+        if config.orchestrator_ip is None:
+            sys.stderr.write(
+                "Cannot deploy {challenge.slug} for {team.slug}: No orchestrator_ip set in config table of DB!\n")
+        else:
+            url = f"http://{Config.get_config().orchestrator_ip}:{Config.get_config().orchestrator_port}/orchestrate/static"
+            try:
+                requests.post(
+                    url,
+                    json={'team': new_team.slug, 'challenge': challenge.slug},
+                    timeout=(None, 0.1))
+            except ReadTimeout:
+                pass
+            sys.stderr.write(f"Requested static deploy of {challenge.slug} for {team.slug} via {url}\n")
+    return Response(json.dumps({}), status=200, mimetype='application/json')
 
 
 @main_blueprint.route('/team/size')
@@ -175,15 +218,74 @@ def team_size():
     return str(len(current_user.team.users))
 
 
-@main_blueprint.route('/challenge/<string:challenge_slug>')
+@main_blueprint.route('/challenge/<string:challenge_slug>', methods=['GET', 'POST'])
 @login_required
 def challenge(challenge_slug: str):
     c = app.event.get_challenge(challenge_slug)
     if c is None:
         abort(404)
-    return render_template('challenge.html', challenge=c)
+    if request.method == 'POST':
+        if 'flag' not in request.form:
+            abort(400)
+        if current_user.team is None or current_user.team_pending:
+            return Response("You need to be accepted onto a team before you can submit flags.", status=403,
+                            mimetype='text/plain')
+        if current_user.team.has_solved(c):
+            return Response("Your team has already solved this flag.", status=410, mimetype='text/plain')
+        if app.event.flag_manager.verify_flag(c, current_user.team, request.form['flag']):
+            new_solve = Solve(current_user.team, current_user, c, datetime.now())
+            db.session.add(new_solve)
+            db.session.commit()
+            return Response(json.dumps({}), status=200, mimetype='application/json')
+        return Response("Incorrect flag", status=402, mimetype='text/plain')
+    else:
+        return render_template('challenge.html', challenge=c,
+                               orch_static=OrchestrationStatic.query.get((current_user.team.slug, c.slug)))
+
 
 @main_blueprint.route('/challenges')
 @login_required
 def challenges():
     return render_template('challenges.html')
+
+
+@main_blueprint.route('/logo')
+def logo():
+    if app.event.logo is None:
+        abort(404)
+
+    mime_type = magic.Magic(mime=True).from_buffer(app.event.logo)
+    if mime_type is None:
+        mime_type = 'application/octet-stream'  # default MIME type if not determined
+
+    # Create a response with the bytes data and appropriate MIME type
+    response = Response(app.event.logo, content_type=mime_type)
+
+    # Set caching headers to allow caching
+    response.headers['Cache-Control'] = 'public, max-age=3600'  # Cache for 1 hour (adjust as needed)
+    response.headers['Expires'] = (datetime.now() + timedelta(hours=1)).strftime('%a, %d %b %Y %H:%M:%S GMT')
+
+    return response
+
+
+@main_blueprint.route('/admin', methods=['GET'])
+@login_required
+def admin():
+    if not current_user.is_admin:
+        abort(403)
+    return render_template('admin.html')
+
+@main_blueprint.route('/admin/create_token', methods=['POST'])
+@login_required
+def create_token():
+    if not current_user.is_admin:
+        abort(403)
+    if 'email' not in request.form:
+        abort(400)
+    email = request.form['email'].lower().strip()
+    signature = base64.b64encode(hmac.new(app.event.secret_key.encode('utf-8'),
+                                          msg=email.encode('utf-8'),
+                                          digestmod=hashlib.sha256
+                                          ).digest()).decode('utf-8')
+    token = base64.b64encode(json.dumps({'email': email, 'signature': signature}).encode('utf-8')).decode('utf-8')
+    return Response(url_for('auth.register', token=token), status=200, mimetype='text/plain')

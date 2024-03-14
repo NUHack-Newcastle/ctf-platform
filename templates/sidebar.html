@@ -3,8 +3,9 @@
         <div class="sidebar-header position-relative">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="logo">
-                    <a href="{{ url_for('main.index') }}"><img src="/static/assets//compiled/svg/logo.svg" alt="Logo"
-                                                               srcset=""></a>
+                    <a href="{{ url_for('main.index') }}">
+                    {%- include 'widgets/logo.html' -%}
+                    </a>
                 </div>
                 <div class="theme-toggle d-flex gap-2  align-items-center mt-2">
                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -67,6 +68,12 @@
     {%- endmacro -%}
         <div class="sidebar-menu">
             <ul class="menu">
+            {%- if event.scope_html is not none -%}
+                {{ sidebar_item('Scope', 'main.scope', bootstrap_icon('clipboard2-check-fill', 'text-success'))|safe }}
+            {%- endif -%}
+            {%- if current_user.is_admin -%}
+                {{ sidebar_item('Admin', 'main.admin', bootstrap_icon('person-fill-gear'))|safe }}
+            {%- endif -%}
                 {{ sidebar_title('Menu')|safe }}
                 {{ sidebar_item('Dashboard', 'main.dashboard', bootstrap_icon('grid-fill'))|safe }}
                 {{ sidebar_item('Team', 'main.team', bootstrap_icon('people-fill', 'text-warning' if current_user.team is none or current_user.team_pending or current_user.team.any_pending else 't'))|safe }}
@@ -76,7 +83,7 @@
                 {%- for category in event.categories|sort(attribute='name') %}
                 {%- set challenge_items = [] -%}
                     {%- for challenge in category.challenges|sort(attribute='name') -%}
-                    {%- do challenge_items.append(sidebar_item(challenge.name, 'main.challenge', '', {'challenge_slug': challenge.slug})) -%}
+                    {%- do challenge_items.append(sidebar_item(challenge.name, 'main.challenge', bootstrap_icon('check-lg', 'text-success me-2') if current_user.team is not none and not current_user.team_pending and current_user.team.has_solved(challenge) else '', {'challenge_slug': challenge.slug})) -%}
                     {%- endfor -%}
                 {{ sidebar_item(category.name, challenge_items, category.icon or bootstrap_icon('puzzle-fill'))|safe }}
                 {%- endfor  %}
