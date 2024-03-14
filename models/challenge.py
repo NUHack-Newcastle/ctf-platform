@@ -1,6 +1,11 @@
 import os
 import json
-from typing import Optional
+from typing import Optional, Set
+
+from flask_login import current_user
+
+from db import db
+from models.solve import Solve
 
 
 class Challenge:
@@ -31,3 +36,8 @@ class Challenge:
         f.close()
 
         return Challenge(slug=os.path.split(directory)[-1], name=name, category=category)
+
+    @property
+    def solves(self) -> Set['Solve']:
+        # not sure the proper way to do this in sqlalchemy! hybrid properties didn't seem to work!
+        return set(s for s in Solve.query.all() if s.challenge == self)
