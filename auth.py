@@ -1,6 +1,6 @@
 from flask import Blueprint, send_from_directory, render_template, redirect, url_for, flash
 from flask import current_app as app
-from flask_login import login_user, current_user
+from flask_login import login_user, current_user, login_required, logout_user
 from flask_wtf import FlaskForm
 from wtforms.fields.simple import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Email
@@ -34,3 +34,9 @@ class LoginForm(FlaskForm):
     password = PasswordField(validators=[DataRequired()])
     remember = BooleanField(default=True)
     submit = SubmitField()
+
+@auth_blueprint.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('main.index'))

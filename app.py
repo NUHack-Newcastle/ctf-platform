@@ -59,7 +59,7 @@ def create_app() -> CTFPlatformApp:
                 ok = False
                 r = None
                 try:
-                    r = requests.get(f"http://{Config.get_config().orchestrator_ip}:{Config.get_config().orchestrator_port}/", timeout=3)
+                    r = requests.get(f"http://{Config.get_config().orchestrator_ip}:{Config.get_config().orchestrator_port}/", timeout=0.2)
                     ok = r.ok
                 except:
                     pass
