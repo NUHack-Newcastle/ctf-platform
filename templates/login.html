@@ -14,7 +14,7 @@
                 {%- include 'widgets/logo.html' -%}
             </div>
             <h1 class="auth-title">Log in.</h1>
-            <p class="auth-subtitle mb-5">Log in with your username and password to take part in {{ event.name }}.</p>
+            <p class="auth-subtitle mb-5">Welcome to {{ event.name }}!</p>
             {% with messages = get_flashed_messages() %}
             {% if messages %}
                 <div class="alert alert-danger" role="alert">
