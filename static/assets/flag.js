@@ -52,7 +52,9 @@ $(function(){
             // not format flag{16-lowercase-hex}
             inputError(flagInput, "That doesn't look right. Flags should always be in the format flag{xxxxxxxxxxxxxxxx}, where x is a digit 0-9 or letter a-f. That's 16 hexadecimal digits.");
         }else{
-            fieldset.disabled = true;var buttonOldContent = null;
+            const body = new FormData(form);
+            fieldset.disabled = true;
+            var buttonOldContent = null;
             if(button !== undefined){
                 buttonOldContent = button.innerHTML;
                 button.innerHTML = '';
@@ -61,7 +63,6 @@ $(function(){
                 spinner.role = 'status';
                 button.appendChild(spinner);
             }
-            const body = new FormData(form);
             const response = await fetch(form.action, {
                 method: form.method, body: body,
             });

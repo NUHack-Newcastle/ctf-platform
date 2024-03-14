@@ -1,21 +1,61 @@
+import datetime
 import os
 import json
 import sys
 from typing import Set, Optional
+
+import dateparser
+import pytz
+
 from models.challenge import Challenge
 from models.challengecategory import ChallengeCategory
+from models.config import Config
 from models.flag_manager import FlagManager
 
 
 class Event:
-    def __init__(self, name: str, categories: Set[ChallengeCategory]):
+    def __init__(self, name: str, categories: Set[ChallengeCategory], scope_html_path: str, logo: Optional[bytes] = None,
+                 start_date: Optional[datetime.datetime] = None, end_date: Optional[datetime.datetime] = None):
         self.__name: str = name
         self.__categories: Set[ChallengeCategory] = categories
         self.__flag_manager: FlagManager = FlagManager(self)
+        self.__logo: Optional[bytes] = logo
+        self.__scope_html_path: str = scope_html_path
+        self.__start_date: Optional[datetime.datetime] = start_date
+        self.__end_date: Optional[datetime.datetime] = end_date
 
     @property
     def name(self) -> str:
         return self.__name
+
+    @property
+    def start_date(self) -> Optional[datetime.datetime]:
+        return self.__start_date
+
+    @property
+    def end_date(self) -> Optional[datetime.datetime]:
+        return self.__end_date
+
+    @property
+    def has_started(self) -> Optional[bool]:
+        if self.start_date is None:
+            return None
+        return self.start_date <= datetime.datetime.now()
+
+    @property
+    def has_ended(self) -> Optional[bool]:
+        if self.end_date is None:
+            return None
+        return self.end_date <= datetime.datetime.now()
+
+    @property
+    def scope_html(self) -> Optional[str]:
+        if os.path.isfile(self.__scope_html_path):
+            f = open(self.__scope_html_path, 'r')
+            html = f.read()
+            f.close()
+            return html
+        return None
 
     @property
     def categories(self) -> Set[ChallengeCategory]:
@@ -37,8 +77,7 @@ class Event:
 
     @property
     def secret_key(self) -> str:
-        # todo: implement per-event secret
-        return "super secret key"
+        return Config.get_config().secret_key
 
     @staticmethod
     def from_directory(directory: str) -> 'Event':
@@ -46,8 +85,34 @@ class Event:
             raise FileNotFoundError()
 
         f = open(os.path.join(directory, 'name'), 'r')
-        name = f.read()
+        name = f.read().strip()
         f.close()
+
+        logo: Optional[bytes] = None
+        if os.path.isfile(os.path.join(directory, 'logo')):
+            f = open(os.path.join(directory, 'logo'), 'rb')
+            logo = f.read()
+            f.close()
+
+        start_date: Optional[datetime.datetime] = None
+        if os.path.isfile(os.path.join(directory, 'start_date')):
+            f = open(os.path.join(directory, 'start_date'), 'r')
+            start_date = dateparser.parse(f.read())
+            if start_date.tzinfo is None:
+                local_timezone = pytz.timezone('local')
+                start_date = start_date.replace(tzinfo=local_timezone)
+            f.close()
+
+        end_date: Optional[datetime.datetime] = None
+        if os.path.isfile(os.path.join(directory, 'end_date')):
+            f = open(os.path.join(directory, 'end_date'), 'r')
+            end_date = dateparser.parse(f.read())
+            if end_date.tzinfo is None:
+                local_timezone = pytz.timezone('local')
+                end_date = end_date.replace(tzinfo=local_timezone)
+            f.close()
+
+        scope_html_path: str = os.path.abspath(os.path.join(directory, 'scope.html'))
 
         categories: Set[ChallengeCategory] = set()
         challenges: Set[Challenge] = set()
@@ -68,4 +133,8 @@ class Event:
         else:
             sys.stderr.write("Warning: could not find challenges directory\n")
 
-        return Event(name, categories)
+        return Event(name, categories, scope_html_path, logo)
+
+    @property
+    def logo(self) -> Optional[bytes]:
+        return self.__logo
