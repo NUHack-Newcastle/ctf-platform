@@ -13,6 +13,7 @@ from werkzeug.exceptions import BadRequest
 
 from app import CTFPlatformApp
 from db import db
+from models.orchestration_static import OrchestrationStatic
 from models.solve import Solve
 from models.team import Team
 from models.user import User
@@ -197,7 +198,7 @@ def challenge(challenge_slug: str):
             return Response(json.dumps({}), status=200, mimetype='application/json')
         return Response("Incorrect flag", status=402, mimetype='text/plain')
     else:
-        return render_template('challenge.html', challenge=c)
+        return render_template('challenge.html', challenge=c, orch_static=OrchestrationStatic.query.get((current_user.team.slug, c.slug)))
 
 @main_blueprint.route('/challenges')
 @login_required
