@@ -23,7 +23,7 @@ class OrchestrationStaticState(enum.Enum):
 class OrchestrationStatic(db.Model):
     __team_column = db.Column('team', db.String(64), db.ForeignKey('team.slug'), nullable=False)
     __challenge_column = db.Column('challenge', db.String(128), nullable=False)
-    resources = db.Column(db.String(1024*32), nullable=True, default=None)
+    resources = db.Column(db.String(1024*4), nullable=True, default=None)
     state = db.Column(db.Enum(OrchestrationStaticState), nullable=False, default=OrchestrationStaticState.NOT_STARTED)
 
     __table_args__ = (
