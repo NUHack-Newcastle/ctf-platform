@@ -15,7 +15,8 @@ from models.flag_manager import FlagManager
 
 class Event:
     def __init__(self, name: str, categories: Set[ChallengeCategory], scope_html_path: str, logo: Optional[bytes] = None,
-                 start_date: Optional[datetime.datetime] = None, end_date: Optional[datetime.datetime] = None):
+                 start_date: Optional[datetime.datetime] = None, end_date: Optional[datetime.datetime] = None,
+                 splash: Optional[bytes] = None, splash_border: Optional[str] = None):
         self.__name: str = name
         self.__categories: Set[ChallengeCategory] = categories
         self.__flag_manager: FlagManager = FlagManager(self)
@@ -23,6 +24,8 @@ class Event:
         self.__scope_html_path: str = scope_html_path
         self.__start_date: Optional[datetime.datetime] = start_date
         self.__end_date: Optional[datetime.datetime] = end_date
+        self.__splash: Optional[bytes] = splash
+        self.__splash_border: Optional[str] = splash_border
 
     @property
     def name(self) -> str:
@@ -40,13 +43,13 @@ class Event:
     def has_started(self) -> Optional[bool]:
         if self.start_date is None:
             return None
-        return self.start_date <= datetime.datetime.now()
+        return self.start_date <= datetime.datetime.now(datetime.timezone.utc).astimezone()
 
     @property
     def has_ended(self) -> Optional[bool]:
         if self.end_date is None:
             return None
-        return self.end_date <= datetime.datetime.now()
+        return self.end_date <= datetime.datetime.now(datetime.timezone.utc).astimezone()
 
     @property
     def scope_html(self) -> Optional[str]:
@@ -94,6 +97,18 @@ class Event:
             logo = f.read()
             f.close()
 
+        splash: Optional[bytes] = None
+        if os.path.isfile(os.path.join(directory, 'splash')):
+            f = open(os.path.join(directory, 'splash'), 'rb')
+            splash = f.read()
+            f.close()
+
+        splash_border: Optional[str] = None
+        if os.path.isfile(os.path.join(directory, 'splash_border')):
+            f = open(os.path.join(directory, 'splash_border'), 'r')
+            splash_border = f.read().strip()
+            f.close()
+
         start_date: Optional[datetime.datetime] = None
         if os.path.isfile(os.path.join(directory, 'start_date')):
             f = open(os.path.join(directory, 'start_date'), 'r')
@@ -133,8 +148,16 @@ class Event:
         else:
             sys.stderr.write("Warning: could not find challenges directory\n")
 
-        return Event(name, categories, scope_html_path, logo)
+        return Event(name, categories, scope_html_path, logo, start_date, end_date, splash, splash_border)
 
     @property
     def logo(self) -> Optional[bytes]:
         return self.__logo
+
+    @property
+    def splash(self) -> Optional[bytes]:
+        return self.__splash
+
+    @property
+    def splash_border(self) -> Optional[str]:
+        return self.__splash_border
