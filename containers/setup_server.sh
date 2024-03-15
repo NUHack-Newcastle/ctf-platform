@@ -26,6 +26,16 @@ sudo apt install nginx apache2-utils -y
 sudo cp "$SCRIPT_DIR"/registry.conf /etc/nginx/conf.d/registry.conf
 
 sudo cp "$SCRIPT_DIR"/nginx.conf /etc/nginx/nginx.conf
+echo "" | sudo tee /etc/nginx/sites-available/default
 
 sudo systemctl restart nginx
 sudo systemctl status nginx
+
+mkdir "$SCRIPT_DIR"/registry/auth
+cd "$SCRIPT_DIR"/registry/auth
+htpasswd -Bc registry.password adminuser
+
+cd "$SCRIPT_DIR"/registry
+docker compose up -d
+
+docker-compose ps
