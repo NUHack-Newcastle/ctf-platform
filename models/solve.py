@@ -13,7 +13,8 @@ class Solve(db.Model):
     __user_column = db.Column('user', db.String(32), db.ForeignKey('user.username'), nullable=False)
     __challenge_column = db.Column('challenge', db.String(128), nullable=False)
     when = db.Column(db.DateTime, nullable=False)
-    multiplier = db.Column(db.Integer, nullable=False, default=1)
+    # store double the multiplier so, we can do .5s without losing accuracy
+    __multiplier_times_two = db.Column('multiplier_times_two', db.Integer, nullable=False, default=1)
 
     __table_args__ = (
         db.PrimaryKeyConstraint(
@@ -21,12 +22,12 @@ class Solve(db.Model):
         ),
     )
 
-    def __init__(self, team: 'Team', user: 'User', challenge: 'Challenge', when: datetime, multiplier: int = 1):
+    def __init__(self, team: 'Team', user: 'User', challenge: 'Challenge', when: datetime, multiplier: float = 1.0):
         self.__team = team
         self.__user = user
         self.__challenge_column = challenge.slug
         self.when = when
-        self.multiplier = multiplier
+        self.__multiplier_times_two = int(multiplier * 2)
 
     @property
     def challenge(self) -> 'Challenge':
@@ -42,3 +43,7 @@ class Solve(db.Model):
     @property
     def user(self) -> 'User':
         return self.__user
+
+    @property
+    def multiplier(self) -> float:
+        return float(self.__multiplier_times_two / 2)
