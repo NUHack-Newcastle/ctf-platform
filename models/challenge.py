@@ -39,7 +39,7 @@ class Challenge:
 
         difficulty: Optional[int] = None
         if os.path.isfile(os.path.join(directory, 'difficulty')):
-            f = open(os.path.join(directory, 'splash_border'), 'r')
+            f = open(os.path.join(directory, 'difficulty'), 'r')
             try:
                 difficulty = int(f.read())
                 if difficulty > 5 or difficulty < 0:
