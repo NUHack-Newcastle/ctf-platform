@@ -277,7 +277,8 @@ def challenge(challenge_slug: str):
         return Response("Incorrect flag", status=402, mimetype='text/plain')
     else:
         return render_template('challenge.html', challenge=c,
-                               orch_static=OrchestrationStatic.query.get((current_user.team.slug if current_user.team is not None else None, c.slug)))
+                               orch_static=OrchestrationStatic.query.get((current_user.team.slug if current_user.team is not None else None, c.slug)),
+                               calculate_multiplier=Solve.calculate_multiplier)
 
 
 @main_blueprint.route('/challenges')

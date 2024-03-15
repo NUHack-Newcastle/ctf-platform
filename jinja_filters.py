@@ -31,6 +31,17 @@ def is_dict_subset(x: dict, y: dict) -> bool:
 def in_any(x: Iterable[object], y: object) -> bool:
     return any(y in i for i in x)
 
+def add_ordinal_suffix(number: int) -> str:
+    s = str(number)
+    if s[-1] == '1':
+        return s+'st'
+    if s[-1] == '2':
+        return s+'nd'
+    if s[-1] == '3':
+        return s+'rd'
+    return s+'th'
+
+
 
 custom_filters = {
     'unique': unique,
@@ -39,5 +50,6 @@ custom_filters = {
     'in_any': in_any,
     'any': any,
     'all': all,
-    'friendly_timedelta': friendly_timedelta
+    'friendly_timedelta': friendly_timedelta,
+    'add_ordinal_suffix': add_ordinal_suffix
 }
