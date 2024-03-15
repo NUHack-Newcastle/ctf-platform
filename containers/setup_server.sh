@@ -9,4 +9,4 @@ https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
 | tee /etc/apt/sources.list.d/docker.list
 sudo apt update -y
 sudo apt install docker-ce docker-compose -y
-docker --version || &2> echo "Failed to install docker" && exit 1;
+docker --version || { >&2 echo "Failed to install docker" && exit 1; }
