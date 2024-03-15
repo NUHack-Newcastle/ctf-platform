@@ -229,6 +229,9 @@ def challenge(challenge_slug: str):
     if request.method == 'POST':
         if 'flag' not in request.form:
             abort(400)
+        if app.event.has_ended is not None and app.event.has_ended:
+            return Response("The event has ended! You can't submit any more flags.", status=403,
+                            mimetype='text/plain')
         if current_user.team is None or current_user.team_pending:
             return Response("You need to be accepted onto a team before you can submit flags.", status=403,
                             mimetype='text/plain')
