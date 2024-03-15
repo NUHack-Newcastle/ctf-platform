@@ -33,12 +33,15 @@
                     You're not in a team. You'll need to join or create a team to take part in challenges.
                 </div>
                 <div class="row">
-                    <div class="col-12 col-lg-6">
+                    <div class="col-12 col-lg-4 offset-lg-2">
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-flex justify-content-center align-items-center flex-column">
                                     <h3 class="mt-3">Join a Team</h3>
-                                    <p class="text-small">todo text here</p>
+                                    <p class="text-small">
+                                        You can join a team that someone else has already created.
+                                        You'll need to be approved by somebody who is already on the team.
+                                    </p>
                                     <button class="btn btn-primary w-100 join-team">Join Team</button>
                                     <script>
                                         var joinTeamEndpoint = "{{ url_for('main.join_team') }}";
@@ -49,12 +52,14 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 col-lg-6">
+                    <div class="col-12 col-lg-4">
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-flex justify-content-center align-items-center flex-column">
                                     <h3 class="mt-3">Create a Team</h3>
-                                    <p class="text-small">todo text here</p>
+                                    <p class="text-small">
+                                        If you're the first of your team create your team here, but make sure only one person tries to create it to avoid similarly-named duplicates!
+                                    </p>
                                     <button class="btn btn-success w-100 create-team">Create Team</button>
                                     <script>
                                         var createTeamEndpoint = "{{ url_for('main.create_team') }}";
