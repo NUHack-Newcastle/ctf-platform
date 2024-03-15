@@ -36,6 +36,6 @@ cd "$SCRIPT_DIR"/registry/auth
 htpasswd -Bc registry.password adminuser
 
 cd "$SCRIPT_DIR"/registry
-docker compose up -d
+sudo docker compose up -d
 
-docker-compose ps
+sudo docker-compose ps
