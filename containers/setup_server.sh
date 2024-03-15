@@ -30,12 +30,12 @@ directives_to_add="
     server_names_hash_bucket_size 64;
 "
 
-if ! sudo grep -q "client_max_body_size" /etc/nginx/nginx.conf; then
-    sudo sed -i "/^http {/a\\${directives_to_add}" /etc/nginx/nginx.conf
-    echo "Directives added to nginx.conf"
-else
+if grep -q "client_max_body_size" /etc/nginx/nginx.conf && grep -q "server_names_hash_bucket_size" /etc/nginx/nginx.conf; then
     echo "Directives already exist in nginx.conf"
+    exit 0
 fi
+
+sudo sed -i "/http {/a\\$directives_to_add" /etc/nginx/nginx.conf
 
 sudo systemctl restart nginx
 sudo systemctl status nginx
