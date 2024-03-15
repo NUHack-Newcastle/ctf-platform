@@ -5,6 +5,7 @@ import requests
 from azure.storage.blob import BlobServiceClient
 from flask_login import LoginManager
 from flask_wtf import CSRFProtect
+from sqlalchemy.exc import PendingRollbackError
 
 from models.config import Config
 from models.ctf_platform_app import CTFPlatformApp
@@ -34,6 +35,9 @@ def create_app() -> CTFPlatformApp:
     else:
         sys.stderr.write("'CTF_DB_CONNECTION_STRING' is set, attempting to use\n")
     new_app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('CTF_DB_CONNECTION_STRING', 'sqlite:///db.sqlite')
+    new_app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'pool_recycle': 15*60
+    }
     new_app.jinja_env.filters.update(custom_filters)
     new_app.jinja_env.add_extension('jinja2.ext.do')
 
@@ -51,6 +55,34 @@ def create_app() -> CTFPlatformApp:
             else:
                 db_session.rollback()
             db_session.close()
+
+    def log_pending_transactions(session):
+        # Check if there are any pending transactions
+        if session.transaction is not None and session.transaction._state != 'committed':
+            # Get information about the pending transaction
+            pending_transaction = session.transaction
+            print("Pending transaction details:")
+            print("Is active:", pending_transaction.is_active)
+            print("Is prepared:", pending_transaction.is_prepared)
+            print("Is pending:", pending_transaction.is_pending)
+
+            # Print changes made in the pending transaction
+            print("New objects:")
+            for obj in session.new:
+                print(obj)
+            print("Dirty objects:")
+            for obj in session.dirty:
+                print(obj)
+            print("Deleted objects:")
+            for obj in session.deleted:
+                print(obj)
+
+    @app.errorhandler(PendingRollbackError)
+    def handle_pending_rollback_error(error):
+        print("PendingRollbackError: Can't reconnect until invalid transaction is rolled back.")
+        print("Pending transaction details:")
+        log_pending_transactions(db.session)
+        return "An error occurred. Please try again later.", 500
 
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
