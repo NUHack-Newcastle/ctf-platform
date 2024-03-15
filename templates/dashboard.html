@@ -2,6 +2,9 @@
 
 {% block title %}Dashboard - {{ super() }}{% endblock %}
 
+{%- do pre_content_scripts.append('https://code.jquery.com/jquery-3.7.1.min.js') %}
+{%- do scripts.append(url_for('static', filename='assets/extensions/apexcharts/apexcharts.min.js')) -%}
+
 {% block panel_content %}
 <div class="page-heading">
     <h3>Dashboard</h3>
@@ -83,11 +86,48 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h4>Profile Visit</h4>
+                            <h4>Points per Team</h4>
                         </div>
                         <div class="card-body">
-                            <div id="chart-profile-visit"></div>
+                            <div id="chart-points"></div>
                         </div>
+                        <script>
+                            $(() =>{
+                                  var areaOptions = {
+                                      chart: {
+                                          height: 350, type: "area",
+                                      }, dataLabels: {
+                                          enabled: false,
+                                      }, stroke: {
+                                          curve: "straight",
+                                      }, series: [
+                                      {%- for team, points in team_points.items() -%}
+                                      {
+                                        "name": "{{ team.name }}",
+                                        data: [
+                                            {%- for point in points -%}
+                                                {
+                                                  x: new Date('{{ point['when'] }}').getTime(),
+                                                  y: {{ point['value'] }}
+                                                },
+                                            {%- endfor -%}
+                                              ]
+                                      },
+                                      {%- endfor -%}
+                                    ], xaxis: {
+                                          type: 'datetime'
+                                      },
+                                      tooltip: {
+                                          x: {
+                                              format: "HH:mm:ss",
+                                          },
+                                      },
+                                  };
+                                  var area = new ApexCharts(document.querySelector("#chart-points"), areaOptions);
+
+                                  area.render();
+                                });
+                        </script>
                     </div>
                 </div>
             </div>

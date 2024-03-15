@@ -34,3 +34,7 @@ class Team(db.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    @property
+    def points(self) -> int:
+        return sum(s.points for s in self.solves)

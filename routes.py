@@ -4,12 +4,13 @@ import mimetypes
 import sys
 from datetime import datetime, timedelta
 from json import JSONDecodeError
-from typing import List
+from typing import List, Dict, Union
 
 import dicebear.models
 # noinspection PyUnresolvedReferences
 import pylibmagic  # don't remove, required for cross-platform python-magic support
 import magic
+import pytz
 import requests
 import sqlalchemy
 from dicebear import DOptions
@@ -18,6 +19,7 @@ from flask import current_app as app
 from flask_login import current_user, login_required
 from flask_wtf.csrf import generate_csrf
 from requests import ReadTimeout
+from tzlocal import get_localzone
 from werkzeug.exceptions import BadRequest
 import hmac
 import hashlib
@@ -43,7 +45,30 @@ def static(path):
 @main_blueprint.route('/dashboard')
 def dashboard():
     latest_solves: List[Solve] = Solve.query.order_by(Solve.when.desc()).limit(6)
-    return render_template('dashboard.html', latest_solves=latest_solves)
+
+    # get values for graph
+    team_points: Dict[str, List[Dict[str, Union[str, int]]]] = {}
+    for team in Team.query.all():
+        points: List[Dict[str, Union[str, int]]] = []
+        if app.event.start_date is not None and not any(s.when.replace(tzinfo=s.when.tzinfo or get_localzone()) <= app.event.start_date for s in team.solves):
+            points.append({
+                'when': app.event.start_date.isoformat(),
+                'value': 0})
+        for solve in sorted(team.solves, key=lambda s: s.when):
+            if len(points) == 0:
+                points.append({
+                    'when': solve.when.isoformat(),
+                    'value': solve.points})
+            else:
+                points.append({
+                    'when': solve.when.isoformat(),
+                    'value': points[-1]['value'] + solve.points})
+        points.append({
+            'when': datetime.now().isoformat(),
+            'value': team.points})
+        team_points[team] = points
+
+    return render_template('dashboard.html', latest_solves=latest_solves, team_points=team_points)
 
 
 @main_blueprint.route('/account')
