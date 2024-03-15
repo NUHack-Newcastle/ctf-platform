@@ -43,6 +43,7 @@ def static(path):
 
 
 @main_blueprint.route('/dashboard')
+@login_required
 def dashboard():
     latest_solves: List[Solve] = Solve.query.order_by(Solve.when.desc()).limit(6)
 
@@ -72,6 +73,7 @@ def dashboard():
 
 
 @main_blueprint.route('/account')
+@login_required
 def account():
     return render_template('account.html')
 
@@ -333,10 +335,13 @@ def create_token():
         abort(403)
     if 'email' not in request.form:
         abort(400)
-    email = request.form['email'].lower().strip()
+    allow_early_register = False
+    if 'allow_early_register' in request.form and request.form['allow_early_register'] == 'yes':
+        allow_early_register = True
+    email = request.form['email'].lower().strip().replace(';', '')
     signature = base64.b64encode(hmac.new(app.event.secret_key.encode('utf-8'),
-                                          msg=email.encode('utf-8'),
+                                          msg=(email+(';allow_early_register' if allow_early_register else '')).encode('utf-8'),
                                           digestmod=hashlib.sha256
                                           ).digest()).decode('utf-8')
-    token = base64.b64encode(json.dumps({'email': email, 'signature': signature}).encode('utf-8')).decode('utf-8')
+    token = base64.b64encode(json.dumps({'email': email+(';allow_early_register' if allow_early_register else ''), 'signature': signature}).encode('utf-8')).decode('utf-8')
     return Response(url_for('auth.register', token=token), status=200, mimetype='text/plain')

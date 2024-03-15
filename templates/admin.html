@@ -35,13 +35,19 @@
                 </div>
                     <div class="card-body">
                         <div class="d-flex justify-content-center align-items-center flex-column">
-                            <form action="{{ url_for('main.create_token') }}" method="POST" id="create-token-form" class="w-100 mb-2">
+                            <form action="{{ url_for('main.create_token') }}" method="POST" id="create-token-form" class="w-100">
                                 <fieldset>
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                    <div class="input-group input-group-lg">
+                                    <div class="input-group input-group-lg mb-2">
                                         <span class="input-group-text">Email</span>
                                         <input type="text" class="form-control" placeholder="username@email.com" name="email" autocomplete="off"/>
                                         <button class="btn btn-success submit-email" type="button"><i class="bi bi-arrow-right"></i></button>
+                                    </div>
+                                    <div class="form-switch form-check mb-4 ms-3">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" role="switch" type="checkbox" class="form-check-input form-check-warning" value="yes" name="allow_early_register">
+                                            <label class="form-check-label">Allow registration before event start</label>
+                                        </div>
                                     </div>
                                 </fieldset>
                             </form>
