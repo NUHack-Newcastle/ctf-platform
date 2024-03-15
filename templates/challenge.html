@@ -61,7 +61,7 @@
             <div class="card">
                 <div class="card-body py-4 px-4">
                     <form method="POST" id="flag-form">
-                        <fieldset{%- if current_user.team is none or current_user.team_pending or current_user.team.has_solved(challenge) %} disabled{%- endif -%}>
+                        <fieldset{%- if current_user.team is none or current_user.team_pending or current_user.team.has_solved(challenge) or (event.has_ended is not none and event.has_ended)%} disabled{%- endif -%}>
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <div class="input-group input-group-lg">
                                 <span class="input-group-text">Flag</span>
