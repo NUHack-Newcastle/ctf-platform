@@ -26,7 +26,9 @@
     </div>
 </div>
 <div class="page-content">
-{%- if current_user.team is none -%}
+{%- if event.has_ended is not none and event.has_ended -%}
+    <div class="alert alert-danger">The event has ended! You can't submit any more flags.</div>
+{%- elif current_user.team is none -%}
     <div class="alert alert-warning">You need to join a team before you can take part in this challenge.</div>
 {%- elif current_user.team_pending -%}
     <div class="alert alert-warning">You need to be accepted onto the team before you can take part in this challenge.</div>
