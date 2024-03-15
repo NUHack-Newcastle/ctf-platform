@@ -1,5 +1,6 @@
 import os
 import json
+import sys
 from typing import Optional, Set
 
 from flask_login import current_user
@@ -9,10 +10,11 @@ from models.solve import Solve
 
 
 class Challenge:
-    def __init__(self, slug: str, name: str, category: Optional['ChallengeCategory'] = None):
+    def __init__(self, slug: str, name: str, category: Optional['ChallengeCategory'] = None, difficulty: Optional[int] = None):
         self.__slug: str = slug
         self.__name: str = name
         self.__category: Optional['ChallengeCategory'] = category
+        self.__difficulty: Optional[int] = difficulty
 
     @property
     def name(self) -> str:
@@ -35,7 +37,18 @@ class Challenge:
         name = f.read()
         f.close()
 
-        return Challenge(slug=os.path.split(directory)[-1], name=name, category=category)
+        difficulty: Optional[int] = None
+        if os.path.isfile(os.path.join(directory, 'difficulty')):
+            f = open(os.path.join(directory, 'splash_border'), 'r')
+            try:
+                difficulty = int(f.read())
+                if difficulty > 5 or difficulty < 0:
+                    sys.stderr.write(f"Cannot load difficulty for challenge {name}, must be between 0-5. Setting as None")
+            except ValueError:
+                sys.stderr.write(f"Cannot load difficulty for challenge {name}, it is not an int. Setting as None")
+            f.close()
+
+        return Challenge(slug=os.path.split(directory)[-1], name=name, category=category, difficulty=difficulty)
 
     @property
     def solves(self) -> Set['Solve']:
