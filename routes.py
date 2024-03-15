@@ -6,6 +6,8 @@ from datetime import datetime, timedelta
 from json import JSONDecodeError
 
 import dicebear.models
+# noinspection PyUnresolvedReferences
+import pylibmagic  # don't remove, required for cross-platform python-magic support
 import magic
 import requests
 import sqlalchemy
@@ -267,6 +269,24 @@ def logo():
 
     return response
 
+@main_blueprint.route('/splash')
+def splash():
+    if app.event.splash is None:
+        abort(404)
+
+    mime_type = magic.Magic(mime=True).from_buffer(app.event.splash)
+    if mime_type is None:
+        mime_type = 'application/octet-stream'  # default MIME type if not determined
+
+    # Create a response with the bytes data and appropriate MIME type
+    response = Response(app.event.splash, content_type=mime_type)
+
+    # Set caching headers to allow caching
+    response.headers['Cache-Control'] = 'public, max-age=3600'  # Cache for 1 hour (adjust as needed)
+    response.headers['Expires'] = (datetime.now() + timedelta(hours=1)).strftime('%a, %d %b %Y %H:%M:%S GMT')
+
+    return response
+
 
 @main_blueprint.route('/admin', methods=['GET'])
 @login_required
@@ -274,6 +294,7 @@ def admin():
     if not current_user.is_admin:
         abort(403)
     return render_template('admin.html')
+
 
 @main_blueprint.route('/admin/create_token', methods=['POST'])
 @login_required
