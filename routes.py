@@ -45,11 +45,12 @@ def static(path):
 @main_blueprint.route('/dashboard')
 @login_required
 def dashboard():
-    latest_solves: List[Solve] = Solve.query.order_by(Solve.when.desc()).limit(6)
+    latest_solves: List[Solve] = Solve.query.order_by(Solve.when.desc()).limit(15)
 
     # get values for graph
     team_points: Dict[str, List[Dict[str, Union[str, int]]]] = {}
-    for team in Team.query.all():
+    teams = Team.query.all()
+    for team in teams:
         points: List[Dict[str, Union[str, int]]] = []
         if app.event.start_date is not None and not any(s.when.replace(tzinfo=s.when.tzinfo or get_localzone()) <= app.event.start_date for s in team.solves):
             points.append({
@@ -69,7 +70,7 @@ def dashboard():
             'value': team.points})
         team_points[team] = points
 
-    return render_template('dashboard.html', latest_solves=latest_solves, team_points=team_points)
+    return render_template('dashboard.html', latest_solves=latest_solves, team_points=team_points, teams_ranked=sorted(teams, key=lambda t: t.points, reverse=True))
 
 
 @main_blueprint.route('/account')

@@ -7,9 +7,9 @@
 {%- if current_user.team is none -%}
         <div class="card-content py-3">
             <div class="px-4">
-                <button class="btn btn-block btn-xl btn-warning font-bold">
+                <a href="{{ url_for('main.team') }}" class="btn btn-block btn-xl btn-warning font-bold">
                     Join or Create a Team
-                </button>
+                </a>
             </div>
         </div>
     {%- else -%}
