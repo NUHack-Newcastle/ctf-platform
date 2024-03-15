@@ -46,11 +46,14 @@
     </script>
     <section class="section row">
         <div class="col-12 col-lg-8">
+            {%- set description = challenge.description_html -%}
+            {%- if description is not none -%}
             <div class="card">
                 <div class="card-body py-4 px-4">
-                    TODO challenge description here, or omit this card if there isnt one
+                    {{ description|safe }}
                 </div>
             </div>
+            {%- endif -%}
             <div class="card">
                 <div class="card-body py-4 px-4" id="orchStaticCard">
                     Loading challenge files...
