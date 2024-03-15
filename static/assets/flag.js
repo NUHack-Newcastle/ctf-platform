@@ -112,7 +112,7 @@ $(async () => {
         case "OrchestrationStaticState.COMPLETE":
             switch(orchStaticResources.type){
                 case null:
-                    orchStaticCard.innerText = "This challenge does not have any files for you to download here.";
+                    orchStaticCard.innerText = "This challenge does not have any files to download.";
                     break;
                 case "azure_blob_container":
                     fetch(`${orchStaticResources.default_endpoints_protocol}://${orchStaticResources.account_name}.blob.${orchStaticResources.endpoint_suffix}/${orchStaticResources.container_name}?restype=container&comp=list`).then(response => {

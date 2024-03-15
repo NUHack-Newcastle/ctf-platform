@@ -12,13 +12,12 @@
         <div class="row">
             <div class="col-12 col-md-6 order-md-1 order-last">
                 <h3>{{ challenge.name }}</h3>
-                <p class="text-subtitle text-muted">A page where users can change profile information</p>
             </div>
             <div class="col-12 col-md-6 order-md-2 order-first">
                 <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Profile</li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Challenge</li>
                     </ol>
                 </nav>
             </div>
@@ -26,7 +25,9 @@
     </div>
 </div>
 <div class="page-content">
-{%- if current_user.team is none -%}
+{%- if event.has_ended is not none and event.has_ended -%}
+    <div class="alert alert-danger">The event has ended! You can't submit any more flags.</div>
+{%- elif current_user.team is none -%}
     <div class="alert alert-warning">You need to join a team before you can take part in this challenge.</div>
 {%- elif current_user.team_pending -%}
     <div class="alert alert-warning">You need to be accepted onto the team before you can take part in this challenge.</div>
@@ -44,14 +45,22 @@
     </script>
     <section class="section row">
         <div class="col-12 col-lg-8">
+            {%- set description = challenge.description_html -%}
+            {%- if description is not none -%}
             <div class="card">
-                <div class="card-body py-4 px-4">
-                    this is a challenge
+                <div class="card-body pt-4 pb-2 px-4">
+                    {{ description|safe }}
                 </div>
             </div>
+            {%- endif -%}
             <div class="card">
-                <div class="card-body py-4 px-4" id="orchStaticCard">
-                    Loading challenge files...
+                <div class="card-header">
+                    <h4>Files</h4>
+                </div>
+                <div class="card-body pb-4 px-4" id="orchStaticCard">
+                    <div class="spinner-border text-light" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -59,7 +68,7 @@
             <div class="card">
                 <div class="card-body py-4 px-4">
                     <form method="POST" id="flag-form">
-                        <fieldset{%- if current_user.team is none or current_user.team_pending or current_user.team.has_solved(challenge) %} disabled{%- endif -%}>
+                        <fieldset{%- if current_user.team is none or current_user.team_pending or current_user.team.has_solved(challenge) or (event.has_ended is not none and event.has_ended)%} disabled{%- endif -%}>
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <div class="input-group input-group-lg">
                                 <span class="input-group-text">Flag</span>
@@ -72,7 +81,39 @@
             </div>
             <div class="card">
                 <div class="card-body py-4 px-4">
-                    text
+                <table class="table">
+                  <tbody>
+                    <tr>
+                      <th scope="row">Solves</th>
+                      <td>{{ challenge.solves|length }}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Difficulty</th>
+                      <td>{{ challenge.difficulty or '-' }} out of 5</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Base points</th>
+                      <td>{{ challenge.base_points }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p>
+                {%- if current_user.team is not none and current_user.team.has_solved(challenge) -%}
+                    Your team has solved this challenge. Nice work!
+                {%- elif challenge.allow_multiplier -%}
+                    If you submitted now, your team would be <b>{{ ((challenge.solves|length)+1)|add_ordinal_suffix }}</b>
+                    {%- if calculate_multiplier(((challenge.solves|length)+1)) == 1.0 %}
+                        so unfortunately it's too late to get a score multiplier.
+                    {%- else %}
+                        meaning a score multiplier of
+                        <span class="badge bg-success p-1 mx-1" title="This person got a score multiplier for being one of the first to solve this challenge!">
+                            x{{ calculate_multiplier(((challenge.solves|length)+1)) }}
+                        </span>.
+                    {%- endif -%}
+                {%- else -%}
+                    This challenge has multipliers disabled, so you'll only get the base points regardless of how quick you are.
+                {%- endif -%}
+                </p>
                 </div>
             </div>
         </div>

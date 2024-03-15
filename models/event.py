@@ -6,6 +6,7 @@ from typing import Set, Optional
 
 import dateparser
 import pytz
+from tzlocal import get_localzone
 
 from models.challenge import Challenge
 from models.challengecategory import ChallengeCategory
@@ -43,13 +44,15 @@ class Event:
     def has_started(self) -> Optional[bool]:
         if self.start_date is None:
             return None
-        return self.start_date <= datetime.datetime.now(datetime.timezone.utc).astimezone()
+        now = datetime.datetime.now()
+        return self.start_date <= now.replace(tzinfo=now.tzinfo or get_localzone())
 
     @property
     def has_ended(self) -> Optional[bool]:
         if self.end_date is None:
             return None
-        return self.end_date <= datetime.datetime.now(datetime.timezone.utc).astimezone()
+        now = datetime.datetime.now()
+        return self.end_date <= now.replace(tzinfo=now.tzinfo or get_localzone())
 
     @property
     def scope_html(self) -> Optional[str]:
@@ -80,7 +83,8 @@ class Event:
 
     @property
     def secret_key(self) -> str:
-        return Config.get_config().secret_key
+        master_key = Config.get_config().secret_key
+        return master_key[len(master_key) // 2:]
 
     @staticmethod
     def from_directory(directory: str) -> 'Event':
