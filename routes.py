@@ -235,7 +235,9 @@ def challenge(challenge_slug: str):
         if current_user.team.has_solved(c):
             return Response("Your team has already solved this flag.", status=410, mimetype='text/plain')
         if app.event.flag_manager.verify_flag(c, current_user.team, request.form['flag']):
-            new_solve = Solve(current_user.team, current_user, c, datetime.now())
+            # get multiplier
+            solve_position = len(c.solves) + 1
+            new_solve = Solve(current_user.team, current_user, c, datetime.now(), Solve.calculate_multiplier(solve_position))
             db.session.add(new_solve)
             db.session.commit()
             return Response(json.dumps({}), status=200, mimetype='application/json')
@@ -268,6 +270,7 @@ def logo():
     response.headers['Expires'] = (datetime.now() + timedelta(hours=1)).strftime('%a, %d %b %Y %H:%M:%S GMT')
 
     return response
+
 
 @main_blueprint.route('/splash')
 def splash():
