@@ -31,7 +31,7 @@ html[data-bs-theme=dark] .avatar img{
 }
 
 .avatar-status {
-    z-index: 100;
+    z-index: 1;
 }
 
 .avatar.editable div:hover + img{

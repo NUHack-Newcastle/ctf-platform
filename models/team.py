@@ -31,3 +31,6 @@ class Team(db.Model):
             if solve.challenge == challenge:
                 return True
         return False
+
+    def __str__(self) -> str:
+        return self.name

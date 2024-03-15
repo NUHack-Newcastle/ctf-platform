@@ -1,0 +1,72 @@
+{%- do styles.append(url_for('static', filename='assets/extensions/sweetalert2/sweetalert2.min.css')) -%}
+{%- do scripts.append(url_for('static', filename='assets/extensions/sweetalert2/sweetalert2.min.js')) -%}
+{%- do scripts.append(url_for('static', filename='assets/toast.js')) -%}
+{%- do pre_content_scripts.append('https://code.jquery.com/jquery-3.7.1.min.js') %}
+{%- do scripts.append(url_for('static', filename='assets/team.js')) -%}
+<div class="card">
+{%- if current_user.team is none -%}
+        <div class="card-content py-3">
+            <div class="px-4">
+                <button class="btn btn-block btn-xl btn-warning font-bold">
+                    Join or Create a Team
+                </button>
+            </div>
+        </div>
+    {%- else -%}
+        <div class="card-header">
+            <h4>Team Members</h4>
+        </div>
+        <div class="card-content pb-4">
+            {%- for team_member in current_user.team.users -%}
+                {%- if team_member.team_pending -%}
+                    <div class="d-flex align-items-start px-4 py-3 text-bg-warning">
+                {%- elif team_member == current_user -%}
+                    <div class="d-flex align-items-start px-4 py-3 text-bg-primary">
+                {%- else -%}
+                    <div class="d-flex align-items-start px-4 py-3">
+                {%- endif -%}
+            {% with size='lg', user=team_member %}
+                {% include 'widgets/avatar.html' %}
+            {% endwith %}
+                <div class="name ms-4 flex-grow-1">
+                    <h5 class="mb-1{%- if team_member == current_user and not current_user.team_pending %} text-light{%- endif -%}">{{ team_member.username }}</h5>
+                    {%- if team_member.team_pending -%}
+                        <h6 class="mb-0">Pending approval</h6>
+                    {%- else -%}
+                        <h6 class="text-body-secondary mb-0">TODO text here, maybe number of solves from this person and
+                            points? all on one line preferably, maybe separate with // so it looks cool</h6>
+                    {%- endif -%}
+                </div>
+                <div class="ms-4">
+                    {%- if team_member.team_pending and not current_user.team_pending -%}
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-lg btn-danger reject-member" title="Reject"
+                                    aria-label="Reject" data-username="{{ team_member.username }}"><i class="bi bi-x"></i>
+                            </button>
+                            <button type="button" class="btn btn-lg btn-success approve-member" title="Approve"
+                                    aria-label="Approve" data-username="{{ team_member.username }}"><i
+                                    class="bi bi-check"></i></button>
+                        </div>
+                    {%- endif -%}
+                </div>
+            </div>
+            {%- endfor -%}
+            <div class="px-4">
+                <button class="btn btn-block btn-xl btn-outline-primary font-bold mt-3 invite-member"
+                        {%- if current_user.team_pending %} disabled{%- endif -%}>Invite Member
+                </button>
+                <script>
+                    var teamSlug = "{{ current_user.team.slug }}";
+                    var currentURL = new URL(window.location.href);
+                    var teamJoinURL = currentURL.protocol + "//" + currentURL.host + "{{ url_for('main.join_team_get', slug=current_user.team.slug) }}";
+                    var approveMemberEndpoint = "{{ url_for('main.team_approve') }}";
+                    var approveMemberCSRFToken = "{{ csrf_token() }}";
+                    var approveMemberCSRFName = "{{ config.WTF_CSRF_FIELD_NAME }}";
+                    var rejectMemberEndpoint = "{{ url_for('main.team_reject') }}";
+                    var rejectMemberCSRFToken = "{{ csrf_token() }}";
+                    var rejectMemberCSRFName = "{{ config.WTF_CSRF_FIELD_NAME }}";
+                </script>
+            </div>
+        </div>
+    {%- endif -%}
+</div>
