@@ -49,14 +49,19 @@
             {%- set description = challenge.description_html -%}
             {%- if description is not none -%}
             <div class="card">
-                <div class="card-body py-4 px-4">
+                <div class="card-body pt-4 pb-2 px-4">
                     {{ description|safe }}
                 </div>
             </div>
             {%- endif -%}
             <div class="card">
-                <div class="card-body py-4 px-4" id="orchStaticCard">
-                    Loading challenge files...
+                <div class="card-header">
+                    <h4>Files</h4>
+                </div>
+                <div class="card-body pb-4 px-4" id="orchStaticCard">
+                    <div class="spinner-border text-light" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
                 </div>
             </div>
         </div>
