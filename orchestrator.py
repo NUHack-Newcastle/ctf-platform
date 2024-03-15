@@ -9,7 +9,7 @@ import uuid
 from azure.core.utils import parse_connection_string
 from flask import Blueprint, abort, request, current_app as app, Response
 
-from app import CTFPlatformApp
+from models.ctf_platform_app import CTFPlatformApp
 from db import db
 from models.orchestration_static import OrchestrationStatic, OrchestrationStaticState
 from models.team import Team

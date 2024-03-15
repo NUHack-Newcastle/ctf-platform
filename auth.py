@@ -10,7 +10,7 @@ from wtforms.validators import DataRequired, Email
 import hmac
 import hashlib
 
-from app import CTFPlatformApp
+from models.ctf_platform_app import CTFPlatformApp
 from db import db
 from models.user import User
 
