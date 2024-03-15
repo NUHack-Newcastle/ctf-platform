@@ -12,7 +12,6 @@
         <div class="row">
             <div class="col-12 col-md-6 order-md-1 order-last">
                 <h3>{{ challenge.name }}</h3>
-                <p class="text-subtitle text-muted">TODO page description here</p>
             </div>
             <div class="col-12 col-md-6 order-md-2 order-first">
                 <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
@@ -82,7 +81,39 @@
             </div>
             <div class="card">
                 <div class="card-body py-4 px-4">
-                    TODO challenge stats, i.e. how many people have solved, what is the base points, what multiplier  and therefore points would you get now
+                <table class="table">
+                  <tbody>
+                    <tr>
+                      <th scope="row">Solves</th>
+                      <td>{{ challenge.solves|length }}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Difficulty</th>
+                      <td>{{ challenge.difficulty or '-' }} out of 5</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Base points</th>
+                      <td>{{ challenge.base_points }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p>
+                {%- if current_user.team is not none and current_user.team.has_solved(challenge) -%}
+                    Your team has solved this challenge. Nice work!
+                {%- elif challenge.allow_multiplier -%}
+                    If you submitted now, your team would be <b>{{ ((challenge.solves|length)+1)|add_ordinal_suffix }}</b>
+                    {%- if calculate_multiplier(((challenge.solves|length)+1)) == 1.0 %}
+                        so unfortunately it's too late to get a score multiplier.
+                    {%- else %}
+                        meaning a score multiplier of
+                        <span class="badge bg-success p-1 mx-1" title="This person got a score multiplier for being one of the first to solve this challenge!">
+                            x{{ calculate_multiplier(((challenge.solves|length)+1)) }}
+                        </span>.
+                    {%- endif -%}
+                {%- else -%}
+                    This challenge has multipliers disabled, so you'll only get the base points regardless of how quick you are.
+                {%- endif -%}
+                </p>
                 </div>
             </div>
         </div>
