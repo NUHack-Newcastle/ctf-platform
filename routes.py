@@ -21,7 +21,7 @@ from werkzeug.exceptions import BadRequest
 import hmac
 import hashlib
 
-from app import CTFPlatformApp
+from models.ctf_platform_app import CTFPlatformApp
 from db import db
 from models.config import Config
 from models.orchestration_static import OrchestrationStatic
