@@ -77,7 +77,7 @@ def create_app() -> CTFPlatformApp:
             for obj in session.deleted:
                 print(obj)
 
-    @app.errorhandler(PendingRollbackError)
+    @new_app.errorhandler(PendingRollbackError)
     def handle_pending_rollback_error(error):
         print("PendingRollbackError: Can't reconnect until invalid transaction is rolled back.")
         print("Pending transaction details:")
