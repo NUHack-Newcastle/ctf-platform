@@ -1,3 +1,6 @@
+import base64
+import secrets
+
 from db import db
 
 
@@ -6,7 +9,7 @@ class Config(db.Model):
     # Define your configuration parameters here
     orchestrator_ip = db.Column(db.String(16), nullable=True)
     orchestrator_port = db.Column(db.Integer(), nullable=False, default=5000)
-    secret_key = db.Column(db.String(256), nullable=False, default='test')
+    secret_key = db.Column(db.String(256), nullable=False, default=base64.urlsafe_b64encode(secrets.token_bytes(192)).decode('utf-8'))
     # Add more parameters as needed
 
     # Define a constant field that always holds the same value
