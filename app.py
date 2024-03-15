@@ -14,6 +14,7 @@ from orchestrator import orchestrator_blueprint
 from routes import main_blueprint
 from auth import auth_blueprint
 from jinja_filters import custom_filters
+from db import db
 
 
 def create_app() -> CTFPlatformApp:
@@ -39,8 +40,17 @@ def create_app() -> CTFPlatformApp:
     csrf = CSRFProtect(new_app)
     csrf.exempt(orchestrator_blueprint)
 
-    from db import db
     db.init_app(new_app)
+
+    @new_app.teardown_request
+    def teardown_request(exception=None):
+        db_session = db.session
+        if db_session is not None:
+            if exception is None:
+                db_session.commit()
+            else:
+                db_session.rollback()
+            db_session.close()
 
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
