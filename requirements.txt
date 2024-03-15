@@ -8,6 +8,7 @@ charset-normalizer==3.3.2
 click==8.1.7
 cryptography==42.0.5
 dateparser==1.2.0
+DateTime==5.4
 dicebear==2.7.3
 dnspython==2.6.1
 email_validator==2.1.1
@@ -43,3 +44,4 @@ tzlocal==5.2
 urllib3==2.2.1
 Werkzeug==3.0.1
 WTForms==3.1.2
+zope.interface==6.2
