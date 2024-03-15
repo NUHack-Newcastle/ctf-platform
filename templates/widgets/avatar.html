@@ -4,8 +4,10 @@
         Edit
     </div>
 {% endif -%}
-    <img src="{{ user.avatar }}" alt="Avatar">
-{%- if user.is_admin %}
-    <span class="avatar-status bg-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Admin"></span>
-{% endif -%}
+    <div>
+        <img src="{{ user.avatar }}" alt="Avatar">
+    {%- if user.is_admin %}
+        <span class="avatar-status bg-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Admin"></span>
+    {% endif -%}
+    </div>
 </div>
