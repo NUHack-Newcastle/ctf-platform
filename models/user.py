@@ -91,3 +91,7 @@ class User(db.Model, UserMixin):
     @team.setter
     def team(self, team: Optional[Team]):
         self.__team = team
+
+    @property
+    def points(self) -> int:
+        return sum(s.points for s in self.solves)

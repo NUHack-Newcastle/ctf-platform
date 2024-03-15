@@ -63,23 +63,27 @@ def register(token: str):
                               digestmod=hashlib.sha256
                               ).digest()
     signature = base64.b64decode(t['signature'].encode('utf-8'))
+    allow_early_register = len(t['email'].split(';')) == 2 and 'allow_early_register' in t['email'].split(';')[1].split(',')
     if signature != real_signature:
         abort(403)
-    if len(User.query.filter_by(email=t['email']).all()) > 0:
+    if len(User.query.filter_by(email=t['email'].split(';')[0]).all()) > 0:
         abort(410)
 
     form = RegisterForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data.strip()).first()
-        if user or form.username.data.strip().lower() in ['admin']:
-            flash('That username is already taken or is not allowed. Please choose another.')
+        if app.event.has_started is not None and not app.event.has_started and not allow_early_register:
+            flash("You can't register until the event starts.")
         else:
-            user = User(form.username.data, t['email'], form.password.data, '', 'thumbs', form.username.data, {}, None)
-            db.session.add(user)
-            db.session.commit()
-            return render_template('register.html', register_ok=True)
+            user = User.query.filter_by(username=form.username.data.strip()).first()
+            if user or form.username.data.strip().lower() in ['admin']:
+                flash('That username is already taken or is not allowed. Please choose another.')
+            else:
+                user = User(form.username.data, t['email'].split(';')[0], form.password.data, '', 'thumbs', form.username.data, {}, None)
+                db.session.add(user)
+                db.session.commit()
+                return render_template('register.html', register_ok=True, allow_early_register=allow_early_register)
 
-    return render_template('register.html', form=RegisterForm(), email=t['email'], token=token, register_ok=False)
+    return render_template('register.html', form=RegisterForm(), email=t['email'].split(';')[0], token=token, register_ok=False, allow_early_register=allow_early_register)
 
 
 class RegisterForm(FlaskForm):

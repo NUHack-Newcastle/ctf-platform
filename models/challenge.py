@@ -10,11 +10,12 @@ from models.solve import Solve
 
 
 class Challenge:
-    def __init__(self, slug: str, name: str, category: Optional['ChallengeCategory'] = None, difficulty: Optional[int] = None):
+    def __init__(self, slug: str, name: str, description_html_path: str, category: Optional['ChallengeCategory'] = None, difficulty: Optional[int] = None,):
         self.__slug: str = slug
         self.__name: str = name
         self.__category: Optional['ChallengeCategory'] = category
         self.__difficulty: Optional[int] = difficulty
+        self.__description_html_path: str = description_html_path
 
     @property
     def name(self) -> str:
@@ -37,6 +38,8 @@ class Challenge:
         name = f.read()
         f.close()
 
+        description_html_path: str = os.path.abspath(os.path.join(directory, 'description.html'))
+
         difficulty: Optional[int] = None
         if os.path.isfile(os.path.join(directory, 'difficulty')):
             f = open(os.path.join(directory, 'difficulty'), 'r')
@@ -48,7 +51,7 @@ class Challenge:
                 sys.stderr.write(f"Cannot load difficulty for challenge {name}, it is not an int. Setting as None")
             f.close()
 
-        return Challenge(slug=os.path.split(directory)[-1], name=name, category=category, difficulty=difficulty)
+        return Challenge(slug=os.path.split(directory)[-1], name=name, category=category, difficulty=difficulty, description_html_path=description_html_path)
 
     @property
     def difficulty(self) -> Optional[int]:
@@ -82,3 +85,12 @@ class Challenge:
     def allow_multiplier(self) -> bool:
         # allow multiplier for all except example challenges
         return self.difficulty != 0
+
+    @property
+    def description_html(self) -> Optional[str]:
+        if os.path.isfile(self.__description_html_path):
+            f = open(self.__description_html_path, 'r')
+            html = f.read()
+            f.close()
+            return html
+        return None

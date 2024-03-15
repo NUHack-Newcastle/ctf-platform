@@ -1,3 +1,5 @@
+from typing import Set
+
 from db import db
 from slugify import slugify
 
@@ -31,3 +33,17 @@ class Team(db.Model):
             if solve.challenge == challenge:
                 return True
         return False
+
+    def __str__(self) -> str:
+        return self.name
+
+    @property
+    def solved_challenges(self) -> Set[Challenge]:
+        c: Set[Challenge] = set()
+        for s in self.solves:
+            c.add(s.challenge)
+        return c
+
+    @property
+    def points(self) -> int:
+        return sum(s.points for s in self.solves)
