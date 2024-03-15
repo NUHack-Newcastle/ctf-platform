@@ -15,7 +15,13 @@
             </div>
             <h1 class="auth-title">Register.</h1>
             <p class="auth-subtitle mb-5">Enter details below to register for {{ event.name }}.</p>
-            {% if event.has_started or event.has_started is none %}
+            {% if event.has_started is none or event.has_started or allow_early_register %}
+                {% if allow_early_register %}
+                    <div class="alert alert-warning" role="alert">
+                        Registration is usually only open once the event starts, but you've been given permission to register early.
+                        You must be special :)
+                    </div>
+                {% endif %}
             {% with messages = get_flashed_messages() %}
             {% if messages %}
                 <div class="alert alert-danger" role="alert">
@@ -63,9 +69,17 @@
             </form>
             {% endif %}
             {% else %}
-            <div class="alert alert-danger" role="alert">
-                The event hasn't started yet. Please come back once the event has started to register.
+{%- do pre_content_scripts.append(url_for('static', filename='assets/countdown.js')) -%}
+            <div class="alert alert-danger mb-5" role="alert">
+                The event hasn't started yet. Once the event starts please come back, and you will be able to register.
             </div>
+                <p class="auth-subtitle my-3 text-center">Event starts in</p>
+                <h1 id="countdown" class="auth-title text-center">--:--:--</h1>
+                <script>
+                countdown('{{ event.start_date }}', document.getElementById('countdown'), '00:00:00', ()=>{
+                    location.reload();
+                });
+                </script>
             {% endif %}
         </div>
     </div>

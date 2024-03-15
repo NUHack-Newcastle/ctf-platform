@@ -4,8 +4,14 @@
         Edit
     </div>
 {% endif -%}
-    <img src="{{ user.avatar }}" alt="Avatar">
-{%- if user.is_admin %}
-    <span class="avatar-status bg-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Admin"></span>
-{% endif -%}
+{%- if not(editable is defined and editable) %}
+    <div>
+{%- endif -%}
+        <img src="{{ user.avatar }}" alt="Avatar">
+    {%- if user.is_admin %}
+        <span class="avatar-status bg-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Admin"></span>
+    {% endif -%}
+{%- if not(editable is defined and editable) %}
+    </div>
+{%- endif -%}
 </div>

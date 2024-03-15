@@ -31,7 +31,7 @@ html[data-bs-theme=dark] .avatar img{
 }
 
 .avatar-status {
-    z-index: 100;
+    z-index: 1;
 }
 
 .avatar.editable div:hover + img{
@@ -208,4 +208,12 @@ input[type=range][orient=vertical] {
     background-image: url(https://images.unsplash.com/photo-1618060932014-4deda4932554?q=80)!important;
     background-size: cover!important;
     background-position: center!important;
+}
+
+#challenges-table tr[onclick], div.account[onclick]{
+    cursor: pointer;
+}
+
+.text-bg-primary .text-body-secondary{
+    color: rgba(222, 226, 230, .75)!important;
 }
