@@ -15,7 +15,7 @@
             </div>
             <h1 class="auth-title">Register.</h1>
             <p class="auth-subtitle mb-5">Enter details below to register for {{ event.name }}.</p>
-            {% if event.has_started %}
+            {% if event.has_started or event.has_started is none %}
             {% with messages = get_flashed_messages() %}
             {% if messages %}
                 <div class="alert alert-danger" role="alert">
@@ -70,9 +70,7 @@
         </div>
     </div>
     <div class="col-lg-7 d-none d-lg-block">
-        <div id="auth-right">
-
-        </div>
+        {% include 'widgets/auth-right.html' %}
     </div>
 </div>
 
