@@ -77,3 +77,8 @@ class Challenge:
             return 3500
         elif self.difficulty == 5:
             return 5000
+
+    @property
+    def allow_multiplier(self) -> bool:
+        # allow multiplier for all except example challenges
+        return self.difficulty != 0
