@@ -58,3 +58,22 @@ class Challenge:
     def solves(self) -> Set['Solve']:
         # not sure the proper way to do this in sqlalchemy! hybrid properties didn't seem to work!
         return set(s for s in Solve.query.all() if s.challenge == self)
+
+    @property
+    def base_points(self) -> int:
+        if self.difficulty is None or self.difficulty > 5 or self.difficulty < 0:
+            # default 500 points
+            return 500
+        elif self.difficulty == 0:
+            # only for example challenges
+            return 100
+        elif self.difficulty == 1:
+            return 500
+        elif self.difficulty == 2:
+            return 1000
+        elif self.difficulty == 3:
+            return 2500
+        elif self.difficulty == 4:
+            return 3500
+        elif self.difficulty == 5:
+            return 5000
