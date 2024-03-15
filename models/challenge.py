@@ -51,6 +51,10 @@ class Challenge:
         return Challenge(slug=os.path.split(directory)[-1], name=name, category=category, difficulty=difficulty)
 
     @property
+    def difficulty(self) -> Optional[int]:
+        return self.__difficulty
+
+    @property
     def solves(self) -> Set['Solve']:
         # not sure the proper way to do this in sqlalchemy! hybrid properties didn't seem to work!
         return set(s for s in Solve.query.all() if s.challenge == self)
