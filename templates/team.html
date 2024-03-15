@@ -13,13 +13,13 @@
         <div class="row">
             <div class="col-12 col-md-6 order-md-1 order-last">
                 <h3>Team</h3>
-                <p class="text-subtitle text-muted">A page where users can change profile information</p>
+                <p class="text-subtitle text-muted">TODO page description here</p>
             </div>
             <div class="col-12 col-md-6 order-md-2 order-first">
                 <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Profile</li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Team</li>
                     </ol>
                 </nav>
             </div>
@@ -80,7 +80,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-center align-items-center flex-column">
                             <h3 class="mt-3">{{ current_user.team.name }}</h3>
-                            <p class="text-small">todo text here</p>
+                            <p class="text-small">TODO text here, some kind of team summary. maybe current position, total solves, total points etc?</p>
                             <button class="btn btn-danger w-100 leave-team">
                             {%- if current_user.team_pending -%}
                                 Cancel Team Join Request
@@ -114,11 +114,11 @@
                                 {% include 'widgets/avatar.html' %}
                             {% endwith %}
                             <div class="name ms-4 flex-grow-1">
-                                <h5 class="mb-1">{{ team_member.username }}</h5>
+                                <h5 class="mb-1{%- if team_member == current_user %} text-light{%- endif -%}">{{ team_member.username }}</h5>
                                 {%- if team_member.team_pending -%}
                                 <h6 class="mb-0">Pending approval</h6>
                                 {%- else -%}
-                                <h6 class="text-muted mb-0">todo text here</h6>
+                                <h6 class="text-body-secondary mb-0">TODO text here, maybe number of solves from this person and points? all on one line preferably, maybe separate with // so it looks cool</h6>
                                 {%- endif -%}
                             </div>
                             <div class="ms-4">
@@ -151,7 +151,12 @@
             <div class="col-12 col-lg-8">
                 <div class="card">
                     <div class="card-body">
-                        <p>Team stats TODO</p>
+                        <p>
+                            TODO team stats or something here, maybe a graph of solves over time?
+                            leaderboard of solves per teammate?
+                            table of all solves by the team?
+                            or all of them? (in separate cards pls if you do)
+                        </p>
                     </div>
                 </div>
             </div>
