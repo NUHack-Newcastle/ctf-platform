@@ -51,7 +51,7 @@
                         <tr>
                             <td>{{ challenge.name }}</td>
                             <td>{{ (challenge.category.icon or '')|safe }} {{ challenge.category.name }}</td>
-                            <td>TODO</td>
+                            <td>{%- if challenge.difficulty is none -%} - {%- else -%} {{ difficulty }} %- endif -%}</td>
                             <td>{{ solves }} solve{%- if solves != 1 -%}s{%- endif -%}</td>
                             <td>
                             {%- if current_user.team is not none and not current_user.team_pending -%}
