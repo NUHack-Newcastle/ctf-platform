@@ -4,11 +4,13 @@ import mimetypes
 import sys
 from datetime import datetime, timedelta
 from json import JSONDecodeError
+from typing import List, Dict, Union
 
 import dicebear.models
 # noinspection PyUnresolvedReferences
 import pylibmagic  # don't remove, required for cross-platform python-magic support
 import magic
+import pytz
 import requests
 import sqlalchemy
 from dicebear import DOptions
@@ -17,11 +19,12 @@ from flask import current_app as app
 from flask_login import current_user, login_required
 from flask_wtf.csrf import generate_csrf
 from requests import ReadTimeout
+from tzlocal import get_localzone
 from werkzeug.exceptions import BadRequest
 import hmac
 import hashlib
 
-from app import CTFPlatformApp
+from models.ctf_platform_app import CTFPlatformApp
 from db import db
 from models.config import Config
 from models.orchestration_static import OrchestrationStatic
@@ -40,11 +43,38 @@ def static(path):
 
 
 @main_blueprint.route('/dashboard')
+@login_required
 def dashboard():
-    return render_template('dashboard.html')
+    latest_solves: List[Solve] = Solve.query.order_by(Solve.when.desc()).limit(15)
+
+    # get values for graph
+    team_points: Dict[str, List[Dict[str, Union[str, int]]]] = {}
+    teams = Team.query.all()
+    for team in teams:
+        points: List[Dict[str, Union[str, int]]] = []
+        if app.event.start_date is not None and not any(s.when.replace(tzinfo=s.when.tzinfo or get_localzone()) <= app.event.start_date for s in team.solves):
+            points.append({
+                'when': app.event.start_date.isoformat(),
+                'value': 0})
+        for solve in sorted(team.solves, key=lambda s: s.when):
+            if len(points) == 0:
+                points.append({
+                    'when': solve.when.isoformat(),
+                    'value': solve.points})
+            else:
+                points.append({
+                    'when': solve.when.isoformat(),
+                    'value': points[-1]['value'] + solve.points})
+        points.append({
+            'when': datetime.now().isoformat(),
+            'value': team.points})
+        team_points[team] = points
+
+    return render_template('dashboard.html', latest_solves=latest_solves, team_points=team_points, teams_ranked=sorted(teams, key=lambda t: t.points, reverse=True))
 
 
 @main_blueprint.route('/account')
+@login_required
 def account():
     return render_template('account.html')
 
@@ -84,7 +114,7 @@ def scope():
 @main_blueprint.route('/team')
 @login_required
 def team():
-    return render_template('team.html')
+    return render_template('team.html', get_solve=lambda t, c: Solve.query.get((t.slug, c.slug)))
 
 
 @main_blueprint.route('/team/leave', methods=['POST'])
@@ -229,20 +259,26 @@ def challenge(challenge_slug: str):
     if request.method == 'POST':
         if 'flag' not in request.form:
             abort(400)
+        if app.event.has_ended is not None and app.event.has_ended:
+            return Response("The event has ended! You can't submit any more flags.", status=403,
+                            mimetype='text/plain')
         if current_user.team is None or current_user.team_pending:
             return Response("You need to be accepted onto a team before you can submit flags.", status=403,
                             mimetype='text/plain')
         if current_user.team.has_solved(c):
             return Response("Your team has already solved this flag.", status=410, mimetype='text/plain')
         if app.event.flag_manager.verify_flag(c, current_user.team, request.form['flag']):
-            new_solve = Solve(current_user.team, current_user, c, datetime.now())
+            # get multiplier
+            solve_position = len(c.solves) + 1
+            new_solve = Solve(current_user.team, current_user, c, datetime.now(), Solve.calculate_multiplier(solve_position))
             db.session.add(new_solve)
             db.session.commit()
             return Response(json.dumps({}), status=200, mimetype='application/json')
         return Response("Incorrect flag", status=402, mimetype='text/plain')
     else:
         return render_template('challenge.html', challenge=c,
-                               orch_static=OrchestrationStatic.query.get((current_user.team.slug, c.slug)))
+                               orch_static=OrchestrationStatic.query.get((current_user.team.slug if current_user.team is not None else None, c.slug)),
+                               calculate_multiplier=Solve.calculate_multiplier)
 
 
 @main_blueprint.route('/challenges')
@@ -268,6 +304,7 @@ def logo():
     response.headers['Expires'] = (datetime.now() + timedelta(hours=1)).strftime('%a, %d %b %Y %H:%M:%S GMT')
 
     return response
+
 
 @main_blueprint.route('/splash')
 def splash():
@@ -303,10 +340,13 @@ def create_token():
         abort(403)
     if 'email' not in request.form:
         abort(400)
-    email = request.form['email'].lower().strip()
+    allow_early_register = False
+    if 'allow_early_register' in request.form and request.form['allow_early_register'] == 'yes':
+        allow_early_register = True
+    email = request.form['email'].lower().strip().replace(';', '')
     signature = base64.b64encode(hmac.new(app.event.secret_key.encode('utf-8'),
-                                          msg=email.encode('utf-8'),
+                                          msg=(email+(';allow_early_register' if allow_early_register else '')).encode('utf-8'),
                                           digestmod=hashlib.sha256
                                           ).digest()).decode('utf-8')
-    token = base64.b64encode(json.dumps({'email': email, 'signature': signature}).encode('utf-8')).decode('utf-8')
+    token = base64.b64encode(json.dumps({'email': email+(';allow_early_register' if allow_early_register else ''), 'signature': signature}).encode('utf-8')).decode('utf-8')
     return Response(url_for('auth.register', token=token), status=200, mimetype='text/plain')
