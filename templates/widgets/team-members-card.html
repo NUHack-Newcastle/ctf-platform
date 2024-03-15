@@ -33,8 +33,7 @@
                     {%- if team_member.team_pending -%}
                         <h6 class="mb-0">Pending approval</h6>
                     {%- else -%}
-                        <h6 class="text-body-secondary mb-0">TODO text here, maybe number of solves from this person and
-                            points? all on one line preferably, maybe separate with // so it looks cool</h6>
+                        <h6 class="text-body-secondary mb-0">{{ team_member.solves|length }} solve{%- if team_member.solves|length != 1 -%}s{%- endif %} // {{ team_member.points }} points</h6>
                     {%- endif -%}
                 </div>
                 <div class="ms-4">

@@ -114,7 +114,7 @@ def scope():
 @main_blueprint.route('/team')
 @login_required
 def team():
-    return render_template('team.html')
+    return render_template('team.html', get_solve=lambda t, c: Solve.query.get((t.slug, c.slug)))
 
 
 @main_blueprint.route('/team/leave', methods=['POST'])
