@@ -84,7 +84,7 @@ class Event:
     @property
     def secret_key(self) -> str:
         master_key = Config.get_config().secret_key
-        return master_key[len(master_key) / 2:]
+        return master_key[len(master_key) // 2:]
 
     @staticmethod
     def from_directory(directory: str) -> 'Event':
