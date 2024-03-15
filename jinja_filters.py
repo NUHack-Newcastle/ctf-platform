@@ -1,5 +1,8 @@
 from typing import Iterable
 
+import datetime
+import pendulum
+
 
 def unique(seq):
     seen = set()
@@ -8,6 +11,12 @@ def unique(seq):
 
 def merge_dicts(x: dict, y: dict):
     return x | y
+
+
+def friendly_timedelta(dt: datetime):
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=pendulum.local_timezone())
+    return pendulum.instance(dt).diff_for_humans()
 
 
 def is_dict_subset(x: dict, y: dict) -> bool:
@@ -22,6 +31,17 @@ def is_dict_subset(x: dict, y: dict) -> bool:
 def in_any(x: Iterable[object], y: object) -> bool:
     return any(y in i for i in x)
 
+def add_ordinal_suffix(number: int) -> str:
+    s = str(number)
+    if s[-1] == '1':
+        return s+'st'
+    if s[-1] == '2':
+        return s+'nd'
+    if s[-1] == '3':
+        return s+'rd'
+    return s+'th'
+
+
 
 custom_filters = {
     'unique': unique,
@@ -29,5 +49,7 @@ custom_filters = {
     'is_dict_subset': is_dict_subset,
     'in_any': in_any,
     'any': any,
-    'all': all
+    'all': all,
+    'friendly_timedelta': friendly_timedelta,
+    'add_ordinal_suffix': add_ordinal_suffix
 }
