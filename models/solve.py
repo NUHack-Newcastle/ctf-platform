@@ -53,3 +53,7 @@ class Solve(db.Model):
         if solve_position <= 0:
             raise ValueError
         return min(-0.5 * solve_position + 3, 1.0)
+
+    @property
+    def points(self) -> int:
+        return int(self.multiplier * self.challenge.base_points)
