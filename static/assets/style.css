@@ -209,3 +209,11 @@ input[type=range][orient=vertical] {
     background-size: cover!important;
     background-position: center!important;
 }
+
+#challenges-table tr[onclick]{
+    cursor: pointer;
+}
+
+.text-bg-primary .text-body-secondary{
+    color: rgba(222, 226, 230, .75)!important;
+}
