@@ -25,26 +25,7 @@ cp "$SCRIPT_DIR"/docker-compose.yml "$SCRIPT_DIR"/registry
 sudo apt install nginx apache2-utils -y
 sudo cp "$SCRIPT_DIR"/registry.conf /etc/nginx/conf.d/registry.conf
 
-directives_to_add="
-    client_max_body_size 4000m;
-    server_names_hash_bucket_size 64;
-"
-
-if grep -q "client_max_body_size" /etc/nginx/nginx.conf && grep -q "server_names_hash_bucket_size" /etc/nginx/nginx.conf; then
-    echo "Directives already exist in nginx.conf"
-    exit 0
-fi
-
-line_number=$(sudo awk '/http \{/{print NR; exit}' /etc/nginx/nginx.conf)
-if [ -n "$line_number" ]; then
-    sudo head -n "$line_number" /etc/nginx/nginx.conf | sudo tee /etc/nginx/nginx.conf.new
-    echo "$directives_to_add" | sudo tee -a /etc/nginx/nginx.conf.new > /dev/null
-    sudo tail -n +$(($line_number + 1)) /etc/nginx/nginx.conf | sudo tee -a /etc/nginx/nginx.conf.new
-    sudo mv /etc/nginx/nginx.conf.new /etc/nginx/nginx.conf
-else
-    echo "Error: Unable to find 'http {' in nginx.conf"
-    exit 1
-fi
+sudo cp "$SCRIPT_DIR"/nginx.conf /etc/nginx/nginx.conf
 
 sudo systemctl restart nginx
 sudo systemctl status nginx
