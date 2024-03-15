@@ -35,7 +35,16 @@ if grep -q "client_max_body_size" /etc/nginx/nginx.conf && grep -q "server_names
     exit 0
 fi
 
-sudo sed -i "/http {/a\\$directives_to_add" /etc/nginx/nginx.conf
+line_number=$(sudo awk '/http \{/{print NR; exit}' /etc/nginx/nginx.conf)
+if [ -n "$line_number" ]; then
+    sudo head -n "$line_number" /etc/nginx/nginx.conf > /etc/nginx/nginx.conf.new
+    echo "$directives_to_add" | sudo tee -a /etc/nginx/nginx.conf.new > /dev/null
+    sudo tail -n +$(($line_number + 1)) /etc/nginx/nginx.conf >> /etc/nginx/nginx.conf.new
+    sudo mv /etc/nginx/nginx.conf.new /etc/nginx/nginx.conf
+else
+    echo "Error: Unable to find 'http {' in nginx.conf"
+    exit 1
+fi
 
 sudo systemctl restart nginx
 sudo systemctl status nginx
