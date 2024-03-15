@@ -29,7 +29,6 @@ def create_app() -> CTFPlatformApp:
         new_app.register_blueprint(main_blueprint)
         new_app.register_blueprint(auth_blueprint)
 
-    new_app.config['SECRET_KEY'] = 'secret'
     if 'CTF_DB_CONNECTION_STRING' not in os.environ:
         sys.stderr.write("'CTF_DB_CONNECTION_STRING' not set, defaulting to sqlite local\n")
     else:
@@ -94,6 +93,8 @@ def create_app() -> CTFPlatformApp:
 
     with new_app.app_context():
         db.create_all()
+        master_key = Config.get_config().secret_key
+        new_app.config['SECRET_KEY'] = master_key[:len(master_key)/2]
         if os.environ.get('CTF_IS_ORCHESTRATOR', 'false') != 'true':
             if Config.get_config().orchestrator_ip is None:
                 sys.stderr.write("No orchestrator_ip set in config table of DB, will be unable to deploy challenges!\n")
