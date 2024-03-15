@@ -4,6 +4,7 @@ import mimetypes
 import sys
 from datetime import datetime, timedelta
 from json import JSONDecodeError
+from typing import List
 
 import dicebear.models
 # noinspection PyUnresolvedReferences
@@ -41,7 +42,8 @@ def static(path):
 
 @main_blueprint.route('/dashboard')
 def dashboard():
-    return render_template('dashboard.html')
+    latest_solves: List[Solve] = Solve.query.order_by(Solve.when.desc()).limit(6)
+    return render_template('dashboard.html', latest_solves=latest_solves)
 
 
 @main_blueprint.route('/account')

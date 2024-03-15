@@ -1,5 +1,8 @@
 from typing import Iterable
 
+import datetime
+import pendulum
+
 
 def unique(seq):
     seen = set()
@@ -8,6 +11,12 @@ def unique(seq):
 
 def merge_dicts(x: dict, y: dict):
     return x | y
+
+
+def friendly_timedelta(dt: datetime):
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=pendulum.local_timezone())
+    return pendulum.instance(dt).diff_for_humans()
 
 
 def is_dict_subset(x: dict, y: dict) -> bool:
@@ -29,5 +38,6 @@ custom_filters = {
     'is_dict_subset': is_dict_subset,
     'in_any': in_any,
     'any': any,
-    'all': all
+    'all': all,
+    'friendly_timedelta': friendly_timedelta
 }

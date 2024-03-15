@@ -95,7 +95,7 @@
                 <div class="col-12 col-xl-4">
                     <div class="card">
                         <div class="card-header">
-                            <h4>Profile Visit</h4>
+                            <h4>Teams Leaderboard</h4>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -176,71 +176,39 @@
                 <div class="col-12 col-xl-8">
                     <div class="card">
                         <div class="card-header">
-                            <h4>Latest Comments</h4>
+                            <h4>Latest Solves</h4>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table table-hover table-lg">
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Comment</th>
-                                        </tr>
-                                    </thead>
                                     <tbody>
+                                    {%- for solve in latest_solves -%}
                                         <tr>
                                             <td class="col-3">
                                                 <div class="d-flex align-items-center">
-                                                    <div class="avatar avatar-md">
-                                                        <img src="/static/assets//compiled/jpg/5.jpg">
-                                                    </div>
-                                                    <p class="font-bold ms-3 mb-0">Si Cantik</p>
+                                                    {% with size='md', user=solve.user %}
+                                                        {% include 'widgets/avatar.html' %}
+                                                    {% endwith %}
+                                                    <p class="font-bold ms-3 mb-0">{{ solve.user.username }}</p>
                                                 </div>
                                             </td>
                                             <td class="col-auto">
-                                                <p class=" mb-0">Congratulations on your graduation!</p>
+                                                <p class="mb-0">
+                                                    Solved
+                                                    <a href="{{ url_for('main.challenge', challenge_slug=solve.challenge.slug) }}">{{ solve.challenge.name }}</a>
+                                                    for {{ solve.points }} points!
+                                                    {%- if solve.multiplier != 1.0 -%}
+                                                        <span class="badge bg-success p-1 mx-2" title="This person got a score multiplier for being one of the first to solve this challenge!">
+                                                            x{{ solve.multiplier }}
+                                                        </span>
+                                                    {%- endif -%}
+                                                </p>
+                                            </td>
+                                            <td>
+                                                {{ solve.when|friendly_timedelta }}
                                             </td>
                                         </tr>
-                                        <tr>
-                                            <td class="col-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="avatar avatar-md">
-                                                        <img src="/static/assets//compiled/jpg/2.jpg">
-                                                    </div>
-                                                    <p class="font-bold ms-3 mb-0">Si Ganteng</p>
-                                                </div>
-                                            </td>
-                                            <td class="col-auto">
-                                                <p class=" mb-0">Wow amazing design! Can you make another tutorial for
-                                                    this design?</p>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="col-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="avatar avatar-md">
-                                                        <img src="/static/assets//compiled/jpg/8.jpg">
-                                                    </div>
-                                                    <p class="font-bold ms-3 mb-0">Singh Eknoor</p>
-                                                </div>
-                                            </td>
-                                            <td class="col-auto">
-                                                <p class=" mb-0">What a stunning design! You are so talented and creative!</p>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="col-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="avatar avatar-md">
-                                                        <img src="/static/assets//compiled/jpg/3.jpg">
-                                                    </div>
-                                                    <p class="font-bold ms-3 mb-0">Rani Jhadav</p>
-                                                </div>
-                                            </td>
-                                            <td class="col-auto">
-                                                <p class=" mb-0">I love your design! It’s so beautiful and unique! How did you learn to do this?</p>
-                                            </td>
-                                        </tr>
+                                    {%- endfor -%}
                                     </tbody>
                                 </table>
                             </div>
@@ -265,14 +233,6 @@
                 </div>
             </div>
             {% include 'widgets/team-members-card.html' %}
-            <div class="card">
-                <div class="card-header">
-                    <h4>Visitors Profile</h4>
-                </div>
-                <div class="card-body">
-                    <div id="chart-visitors-profile"></div>
-                </div>
-            </div>
         </div>
     </section>
 </div>
