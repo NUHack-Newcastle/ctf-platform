@@ -47,3 +47,9 @@ class Solve(db.Model):
     @property
     def multiplier(self) -> float:
         return float(self.__multiplier_times_two / 2)
+
+    @staticmethod
+    def calculate_multiplier(solve_position: int) -> float:
+        if solve_position <= 0:
+            raise ValueError
+        return min(-0.5 * solve_position + 3, 1.0)
