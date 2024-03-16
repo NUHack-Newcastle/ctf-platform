@@ -55,9 +55,11 @@ def orchestrate_static():
         state.state = OrchestrationStaticState.BUILDING
         db_session.commit()
 
+        env = dict(os.environ)
+        env['FLAG'] = app.event.flag_manager.generate_flag(challenge, team)
         process = subprocess.Popen([script_path, challenge_path], stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE,
-                                   env={'FLAG': app.event.flag_manager.generate_flag(challenge, team)})
+                                   env=env)
         stdout, stderr = process.communicate()
 
         # Check the exit code
