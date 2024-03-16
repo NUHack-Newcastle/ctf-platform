@@ -63,6 +63,49 @@
                     </div>
                 </div>
             </div>
+            <div class="card">
+                <div class="card-header">
+                    <h4>Solves</h4>
+                </div>
+                <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-lg">
+                                    <tbody>
+                                    {%- for solve in challenge.solves -%}
+                                        <tr>
+                                            <td class="col-3">
+                                                <div class="d-flex align-items-center">
+                                                    {% with size='md', user=solve.user %}
+                                                        {% include 'widgets/avatar.html' %}
+                                                    {% endwith %}
+                                                    <p class="font-bold ms-3 mb-0">{{ solve.user.username }}</p>
+                                                </div>
+                                            </td>
+                                            <td class="col-auto">
+                                                <p class="mb-0">
+                                                    Solved
+                                                    <a href="{{ url_for('main.challenge', challenge_slug=solve.challenge.slug) }}">{{ solve.challenge.name }}</a>
+                                                    for {{ solve.points }} points!
+                                                    {%- if solve.multiplier != 1.0 -%}
+                                                        <span class="badge bg-success p-1 mx-2" title="This person got a score multiplier for being one of the first to solve this challenge!">
+                                                            x{{ solve.multiplier }}
+                                                        </span>
+                                                    {%- endif -%}
+                                                </p>
+                                            </td>
+                                            <td>
+                                                {{ solve.team.name }}
+                                            </td>
+                                            <td>
+                                                {{ solve.when|friendly_timedelta }}
+                                            </td>
+                                        </tr>
+                                    {%- endfor -%}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+            </div>
         </div>
         <div class="col-12 col-lg-4">
             <div class="card">
