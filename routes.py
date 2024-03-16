@@ -238,7 +238,7 @@ def create_team():
                     timeout=(None, 0.1))
             except ReadTimeout:
                 pass
-            sys.stderr.write(f"Requested static deploy of {challenge.slug} for {team.slug} via {url}\n")
+            sys.stderr.write(f"Requested static deploy of {challenge.slug} for {new_team.slug} via {url}\n")
     return Response(json.dumps({}), status=200, mimetype='application/json')
 
 
