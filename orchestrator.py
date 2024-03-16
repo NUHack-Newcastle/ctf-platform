@@ -36,7 +36,7 @@ def orchestrate_static():
     if not team:
         abort(404)
 
-    print(f"Starting orchestrate for team {team.slug} on challenge {challenge.slug}", file=sys.stderr)
+    print(f"Starting orchestrate for team {team.slug} on challenge {challenge}", file=sys.stderr)
 
     db_session = db.session
     state = OrchestrationStatic.query.get((team.slug, challenge.slug))
