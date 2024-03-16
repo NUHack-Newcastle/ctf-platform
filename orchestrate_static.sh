@@ -29,6 +29,7 @@ if [[ ! -s "$SOURCE_DIR/setup" ]]; then
   >&2 echo "Challenge does not have a setup script, skipping"
 else
   >&2 echo "Running setup script"
+  chmod +x "$SOURCE_DIR/setup"
   "$SOURCE_DIR/setup" || { >&2 echo "Setup script failed" && rm -rf "$WORK_DIR" && exit 1; }
 fi
 
@@ -36,6 +37,7 @@ if [[ ! -s "$SOURCE_DIR/build" ]]; then
   >&2 echo "Challenge does not have a build script, skipping"
 else
   >&2 echo "Running build script"
+  chmod +x "$SOURCE_DIR/build"
   "$SOURCE_DIR/build" || { >&2 echo "Build script failed" && rm -rf "$WORK_DIR" && exit 1; }
 fi
 
