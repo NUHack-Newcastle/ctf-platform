@@ -1,3 +1,17 @@
+A Python/Flask-based CTF platform built for [NUHack Alpha 2024](https://github.com/NUHack-Newcastle/nuhack-alpha-2024), but which can be used for any CTF event. The platform uses a system where challenges are written as build/compile scripts that adhere to a standard, enabling procedural flag generation. For each challenge-team combination, the server generates a unique flag using an HMAC, embedding it during compilation - this system supports distributed validation across multiple servers, allowing teams to receive different flags while ensuring consistency. Each server can independently verify flags by following the same HMAC-based validation process, ensuring scalable, secure, and consistent flag distribution and validation across different challenges and platforms.
+
+See [/docs](/docs) for further documentation.
+
+# Screenshots
+More screenshots can be found in [/docs/screenshots](/docs/screenshots).
+
+![Login page (dark mode)](/docs/screenshots/login_dark.png)
+![Dashboard](/docs/screenshots/dashboard.png)
+![Challenges list page](/docs/screenshots/challenges_list.png)
+![Challenge/flag page](/docs/screenshots/challenge_2.png)
+![Avatar Editor](/docs/screenshots/avatar_editor.png)
+![Team setup page](/docs/screenshots/team_setup.png)
+
 # Setup
 
 ```
